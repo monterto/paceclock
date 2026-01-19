@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-
-  <title>Pace Clock</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pace Clock</title>
 
   <!-- PWA -->
   <link rel="manifest" href="manifest.json">
@@ -15,45 +14,40 @@
 </head>
 
 <body>
-  <div class="app">
+<div class="app">
 
-    <header>
-      <button id="optionsBtn">⚙︎</button>
-    </header>
+<header>
+  <button id="optionsBtn">⚙︎</button>
+</header>
 
-    <div id="totalClock">00:00.0</div>
-    <div id="digital">00:00.0</div>
+<div id="totalClock">00:00.0</div>
+<div id="digital">00:00.0</div>
 
-    <canvas id="clock" width="360" height="360"></canvas>
+<canvas id="clock" width="360" height="360"></canvas>
 
-    <div class="controls-container">
-      <button id="finishBtn">🏁 Finish</button>
-      <button id="toggleRestBtn">Rest ✗</button>
-      <button id="resetBtn">⟳ Reset</button>
-    </div>
+<!-- Controls Container -->
+<div class="controls-container">
+  <button id="finishBtn">🏁 Finish</button>
+  <button id="toggleRestBtn">Rest ✗</button>
+  <button id="resetBtn">⟳ Reset</button>
+</div>
 
-    <div id="list"></div>
-  </div>
+<div id="list"></div>
+</div>
 
-  <div id="options">
-    <label><input type="checkbox" id="darkToggle" checked> Dark clock face</label><br><br>
-    <label><input type="checkbox" id="thickerHandsToggle" checked> Thicker Hands</label><br><br>
-    <label><input type="checkbox" id="ghostToggle" checked> Show Ghost Hand</label><br><br>
-    <label><input type="checkbox" id="guardToggle" checked> Accidental press guard</label><br><br>
-    
-    <button onclick="options.classList.remove('open')">Close</button>
-  </div>
-
-  <!-- App logic -->
+<div id="options">
+  <label><input type="checkbox" id="darkToggle" checked> Dark clock face</label><br><br>
+  <label><input type="checkbox" id="guardToggle" checked> Accidental press guard</label><br><br>
+  <label><input type="checkbox" id="ghostToggle" checked> Show Ghost Hand</label><br><br> <!-- Added Ghost Hand toggle -->
+  <label><input type="checkbox" id="thickerHandsToggle" checked> Thicker Hands</label><br><br> <!-- Added Thicker Hands toggle -->
+  <button onclick="options.classList.remove('open')">Close</button>
+</div>
+   <!-- App Logic -->
   <script src="app.js"></script>
-
-  <!-- Service Worker -->
+  
+   <!-- Service Worker -->
   <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./service-worker.js');
-      });
-    }
+    src="service-worker.js"
   </script>
 </body>
 </html>
