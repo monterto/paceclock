@@ -7,16 +7,13 @@
   --fast:#4dff88;
   --slow:#ff6b6b;
 }
-
 *{box-sizing:border-box}
-
 body{
   margin:0;
   background:var(--bg);
   color:var(--text);
   font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
 }
-
 .app{
   max-width:420px;
   margin:auto;
@@ -25,15 +22,13 @@ body{
   flex-direction:column;
   gap:8px;
 }
-
 header{
   display:flex;
   justify-content:flex-end;
-  position:absolute;
-  top:12px;
-  right:12px;
+  position: absolute;
+  top: 12px;
+  right: 12px;
 }
-
 #optionsBtn{
   font-size:.7rem;
   padding:4px 6px;
@@ -42,21 +37,18 @@ header{
   background:#1a2133;
   color:var(--text);
 }
-
 #totalClock{
   text-align:center;
   font-size:.85rem;
   color:var(--muted);
   letter-spacing:.08em;
 }
-
 #digital{
   text-align:center;
-  font-size:2rem;
+  font-size:2rem; /* Increased digital timer size */
   font-weight:700;
   letter-spacing:.1em;
 }
-
 #digital.rest{ color:var(--accent); }
 
 canvas{
@@ -67,21 +59,21 @@ canvas{
 
 .controls-container{
   display:flex;
-  justify-content:space-between;
+  justify-content:space-between; /* Align buttons horizontally */
   align-items:center;
-  padding:8px;
-  gap:12px;
+  padding: 8px;
+  gap: 12px; /* Space between buttons */
 }
 
 #finishBtn, #resetBtn, #toggleRestBtn{
-  font-size:.75rem;
-  padding:4px 8px;
+  font-size:.75rem;  /* Smaller font size */
+  padding:4px 8px;   /* Smaller padding */
   border-radius:8px;
   border:none;
   background:#1a2133;
   color:var(--text);
-  height:32px;
-  width:80px;
+  height: 32px;  /* Smaller height */
+  width: 80px; /* Set the width to be consistent with Rest button */
 }
 
 #list{
@@ -96,12 +88,12 @@ canvas{
   display:flex;
   justify-content:space-between;
   font-size:.8rem;
-  padding:6px 12px;
+  padding:6px 12px;  /* Added padding to provide more space around text */
   border-radius:8px;
 }
 
-.row:nth-child(odd){ background:#1a2133; }
-.row:nth-child(even){ background:#2a333d; }
+.row:nth-child(odd) { background-color: #1a2133; } /* Odd rows dark */
+.row:nth-child(even) { background-color: #2a333d; } /* Even rows lighter */
 
 .row.rest{ color:var(--accent); }
 
@@ -111,20 +103,19 @@ canvas{
   margin-right:12px;
   text-align:right;
 }
-
 .delta.fast{ color:var(--fast); }
 .delta.slow{ color:var(--slow); }
 
 #options{
   position:fixed;
-  left:0;
-  right:0;
-  bottom:-100%;
+  left:0;right:0;bottom:-100%;
   background:var(--panel);
   padding:14px;
   border-radius:16px 16px 0 0;
   transition:.25s;
 }
-
 #options.open{ bottom:0; }
 
+#clock .row span {
+  font-size: 28px;  /* Increased font size for better visibility of clock numbers */
+}
