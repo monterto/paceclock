@@ -1,3 +1,11 @@
+/*
+Copyright © 2026
+
+Licensed under the PolyForm Noncommercial License 1.0.0.
+Commercial use is prohibited.
+See the LICENSE file for details.
+*/
+
 const state = {
   dark: true,
   trackRest: false, // Default is off, no rest tracking
