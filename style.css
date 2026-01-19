@@ -1,0 +1,130 @@
+:root{
+  --bg:#0b0f14;
+  --panel:#121826;
+  --text:#e6e9ef;
+  --muted:#9aa4b2;
+  --accent:#4da3ff;
+  --fast:#4dff88;
+  --slow:#ff6b6b;
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+}
+
+.app{
+  max-width:420px;
+  margin:auto;
+  padding:12px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+header{
+  display:flex;
+  justify-content:flex-end;
+  position:absolute;
+  top:12px;
+  right:12px;
+}
+
+#optionsBtn{
+  font-size:.7rem;
+  padding:4px 6px;
+  border:none;
+  border-radius:8px;
+  background:#1a2133;
+  color:var(--text);
+}
+
+#totalClock{
+  text-align:center;
+  font-size:.85rem;
+  color:var(--muted);
+  letter-spacing:.08em;
+}
+
+#digital{
+  text-align:center;
+  font-size:2rem;
+  font-weight:700;
+  letter-spacing:.1em;
+}
+
+#digital.rest{ color:var(--accent); }
+
+canvas{
+  width:100%;
+  aspect-ratio:1;
+  display:block;
+}
+
+.controls-container{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:8px;
+  gap:12px;
+}
+
+#finishBtn, #resetBtn, #toggleRestBtn{
+  font-size:.75rem;
+  padding:4px 8px;
+  border-radius:8px;
+  border:none;
+  background:#1a2133;
+  color:var(--text);
+  height:32px;
+  width:80px;
+}
+
+#list{
+  background:var(--panel);
+  border-radius:12px;
+  padding:10px;
+  max-height:220px;
+  overflow:auto;
+}
+
+.row{
+  display:flex;
+  justify-content:space-between;
+  font-size:.8rem;
+  padding:6px 12px;
+  border-radius:8px;
+}
+
+.row:nth-child(odd){ background:#1a2133; }
+.row:nth-child(even){ background:#2a333d; }
+
+.row.rest{ color:var(--accent); }
+
+.delta{
+  display:inline-block;
+  min-width:70px;
+  margin-right:12px;
+  text-align:right;
+}
+
+.delta.fast{ color:var(--fast); }
+.delta.slow{ color:var(--slow); }
+
+#options{
+  position:fixed;
+  left:0;
+  right:0;
+  bottom:-100%;
+  background:var(--panel);
+  padding:14px;
+  border-radius:16px 16px 0 0;
+  transition:.25s;
+}
+
+#options.open{ bottom:0; }
+
