@@ -143,7 +143,7 @@ function drawClock(){
   }
 
   ctx.fillStyle=state.dark?'#9aa4b2':'#000';
-  ctx.font='bold 28px system-ui';  // Set font size to 28px for the clock numbers
+  ctx.font='bold 28px system-ui';  // Set font size for the clock numbers
   ctx.textAlign='center';
   ctx.textBaseline='middle';
   for(let n=5;n<=60;n+=5){
@@ -155,13 +155,32 @@ function drawClock(){
   state.hands.forEach(h=>{
     const s=(base+h.offset)%60;
     const a=s*Math.PI/30-Math.PI/2;
-    ctx.strokeStyle=h.color;
-    ctx.lineWidth = state.thickerHands ? 6 : 3;  // Change line width based on the toggle state
-    ctx.lineCap='round';
-    ctx.beginPath();
-    ctx.moveTo(cx,cy);
-    ctx.lineTo(cx+Math.cos(a)*(r-28),cy+Math.sin(a)*(r-28));
-    ctx.stroke();
+    const length = r - 28;
+const baseWidth = state.thickerHands ? 6 : 3; 
+
+// --- outline ---
+ctx.strokeStyle = '#000';
+ctx.lineWidth = baseWidth + 2; // 1px outline on each side
+ctx.lineCap = 'round';
+ctx.beginPath();
+ctx.moveTo(cx, cy);
+ctx.lineTo(
+  cx + Math.cos(a) * length,
+  cy + Math.sin(a) * length
+);
+ctx.stroke();
+
+// --- colored hand ---
+ctx.strokeStyle = h.color;
+ctx.lineWidth = baseWidth;
+ctx.beginPath();
+ctx.moveTo(cx, cy);
+ctx.lineTo(
+  cx + Math.cos(a) * length,
+  cy + Math.sin(a) * length
+);
+ctx.stroke();
+
   });
 
   if(state.ghost && state.ghostHand){  // Check if ghost hand is enabled
