@@ -22,7 +22,6 @@ const state = {
   laps: [],
   lastTap: null,
   sessionStart: null,
-  trackrest: true,
   mode: 'rest',  // Start in rest mode (first)
   hasCompletedLap: false,
   lastSplit: 0,
@@ -31,6 +30,16 @@ const state = {
   isFinished: false,
   lapCount: 1  // Start lap count at 1
 };
+// save state
+const saved = localStorage.getItem('clockSettings');
+if (saved) {
+  const s = JSON.parse(saved);
+  state.dark = s.dark ?? state.dark;
+  state.trackRest = s.trackRest ?? state.trackRest;
+  state.guard = s.guard ?? state.guard;
+  state.ghostHand = s.ghostHand ?? state.ghostHand;
+  state.thickerHands = s.thickerHands ?? state.thickerHands;
+}
 
 const MIN_PRESS = 1000;
 
@@ -42,6 +51,15 @@ const list = document.getElementById('list');
 const toggleRestBtn = document.getElementById('toggleRestBtn');
 const ghostToggle = document.getElementById('ghostToggle'); // Reference to the ghost toggle checkbox
 const thickerHandsToggle = document.getElementById('thickerHandsToggle'); // Reference to thicker hands toggle checkbox
+const guardToggle = document.getElementById('guardToggle'); // Reference to guard toggle checkbox
+
+// Initialize the UI to match the restored state
+darkToggle.checked = state.dark;
+toggleRestBtn.textContent = state.trackRest ? 'Rest ✓' : 'Rest ✗';
+digital.classList.toggle('rest', state.mode === 'rest');
+ghostToggle.checked = state.ghostHand;
+thickerHandsToggle.checked = state.thickerHands;
+guardToggle.checked = state.guard;
 
 let timerInterval = null;
 let digitalTimerInterval = null;
@@ -82,6 +100,19 @@ document.addEventListener('visibilitychange', () => {
 
 // Request wake lock when the app is first opened
 requestWakeLock();
+
+// function for savestate
+function saveSettings() {
+  const settings = {
+    dark: state.dark,
+    trackRest: state.trackRest,
+    guard: state.guard,
+    ghostHand: state.ghostHand,
+    thickerHands: state.thickerHands
+  };
+  localStorage.setItem('clockSettings', JSON.stringify(settings));
+}
+
 
 // Format function for displaying time
 function fmt(ms){
@@ -252,36 +283,41 @@ document.getElementById('finishBtn').addEventListener('click', () => {
 });
 
 optionsBtn.onclick = () => options.classList.add('open');
-darkToggle.onchange = e => state.dark = e.target.checked;
+//toggle dark clock face and call save state change
+darkToggle.onchange = e => { 
+  state.dark = e.target.checked; 
+  saveSettings(); 
+};
 
-// Toggle Rest Mode without refreshing the clock
+// Toggle Rest Mode without refreshing the clock call save change
 toggleRestBtn.addEventListener('click', () => {
-  state.trackRest = !state.trackRest;  // Toggle rest mode on/off
-  // Update the button text based on the current state
-  toggleRestBtn.textContent = state.trackRest ? 'Rest ✓' : 'Rest ✗';
+  state.trackRest = !state.trackRest;
 
-  // Update the mode to reflect the toggle
-  if (!state.trackRest) {
-    state.mode = 'lap';  // Force lap mode if rest tracking is off
-  } else if (state.mode === 'lap') {
-    state.mode = 'rest';  // If rest is on, switch to rest mode
-  }
+  // Update mode immediately after changing trackRest
+  if (!state.trackRest) state.mode = 'lap';
+  else if (state.mode === 'lap') state.mode = 'rest';
+
+  toggleRestBtn.textContent = state.trackRest ? 'Rest ✓' : 'Rest ✗';
+  digital.classList.toggle('rest', state.mode === 'rest');
+  saveSettings();
 });
+
 
 // Ghost hand toggle
 ghostToggle.onchange = () => {
-  state.ghostHand = ghostToggle.checked;  // Toggle ghost hand visibility
+  state.ghostHand = ghostToggle.checked;
+  saveSettings();
 };
 
 // Thicker hands toggle
 thickerHandsToggle.onchange = () => {
-  state.thickerHands = thickerHandsToggle.checked;  // Toggle thicker hands visibility
+  state.thickerHands = thickerHandsToggle.checked;
+  saveSettings();
 };
 
-guardToggle.onchange = e => state.guard = e.target.checked;
+guardToggle.onchange = e => {
+  state.guard = e.target.checked;
+  saveSettings();
+};
 
-// Initialize Rest button text based on default state
-toggleRestBtn.textContent = state.trackRest ? 'Rest ✓' : 'Rest ✗';
-// Initialize digital timer mode class
-digital.classList.toggle('rest', state.mode === 'rest');
 
