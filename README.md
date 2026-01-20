@@ -13,7 +13,7 @@ Features:
   - Installable as a PWA
 
 Usage:
-  - Tap the clock face to start the timeR
+  - Tap the clock face to start the timer
   - Tap the clock face again to record a split
   - Toggle the Rest button to automatically switch between working sets and rest
   - Tap Finish to stop the timer
