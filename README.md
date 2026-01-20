@@ -1,5 +1,8 @@
 A pace clock app created using AI code tools for my own personal use.
-![Screenshot](https://github.com/monterto/paceclock/blob/main/screenshots/paceclock-screenshot-01.png)
+
+
+<img src="https://github.com/monterto/paceclock/blob/main/screenshots/paceclock-screenshot-01.png" width="30%" height="30%">   
+
 
 Features:
   - Swimmer's pace clock with four hands
@@ -21,5 +24,7 @@ Installation:
   - Open the overflow menu (three dots) in your web browser
   - Select "Add to Home screen"
   - Web browser will prompt for installation
+
+
     
 License: PolyForm Noncommercial — free for non-commercial use, commercial use prohibited.
