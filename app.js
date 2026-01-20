@@ -7,9 +7,9 @@ See the LICENSE file for details.
 */
 
 const state = {
-  dark: true,
-  trackRest: false, // Default is off, no rest tracking
-  guard: true,
+  dark: true, //Dark/Light face
+  trackRest: true, // Default is on
+  guard: true, //Double tap guard
   ghostHand: true, // Default ghost hand visibility to true
   thickerHands: true, // Default hands thickness to true
   hands: [
@@ -22,7 +22,8 @@ const state = {
   laps: [],
   lastTap: null,
   sessionStart: null,
-  mode: 'lap',  // Start in lap mode (first)
+  trackrest: true,
+  mode: 'rest',  // Start in rest mode (first)
   hasCompletedLap: false,
   lastSplit: 0,
   timerRunning: false,
@@ -278,3 +279,9 @@ thickerHandsToggle.onchange = () => {
 };
 
 guardToggle.onchange = e => state.guard = e.target.checked;
+
+// Initialize Rest button text based on default state
+toggleRestBtn.textContent = state.trackRest ? 'Rest ✓' : 'Rest ✗';
+// Initialize digital timer mode class
+digital.classList.toggle('rest', state.mode === 'rest');
+
