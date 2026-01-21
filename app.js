@@ -236,14 +236,48 @@ canvas.addEventListener('pointerdown',()=>{
 
   digital.classList.toggle('rest', state.mode === 'rest');
 
-  const base = (now / 1000) % 60;
-  let best = { d: Infinity };
+// Determine ghost hand on tap
+const base = (now / 1000) % 60; // current seconds
+let best = null;
+let minDistance = Infinity;
+
+state.hands.forEach(h => {
+  const s = (base + h.offset) % 60;
+
+  // Only consider hands in the top windows: 45-60 or 0-2
+  if ((s >= 45 && s <= 60) || (s >= 0 && s <= 2)) {
+    // Distance to "top" (0 seconds)
+    const distance = s <= 2 ? s : 60 - s; // shortest distance to top
+    if (distance < minDistance) {
+      minDistance = distance;
+      best = { seconds: s, color: h.color };
+    }
+  }
+});
+
+// Fallback: if no hand was in the range, snap the nearest hand to 0
+if (!best) {
+  let closest = state.hands[0];
+  let closestDist = Math.min(
+    (base + closest.offset) % 60, 
+    60 - ((base + closest.offset) % 60)
+  );
+
   state.hands.forEach(h => {
     const s = (base + h.offset) % 60;
-    const d = 60 - s;
-    if (d >= 0 && d < best.d) best = { seconds: s, color: h.color, d };
+    const d = Math.min(s, 60 - s);
+    if (d < closestDist) {
+      closest = h;
+      closestDist = d;
+    }
   });
-  state.ghost = best;
+
+  best = { seconds: 0, color: closest.color }; // snap to top
+}
+
+state.ghost = best;
+
+
 
   if (!state.digitalTimerRunning) {
     startDigitalTimer();
