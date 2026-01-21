@@ -185,7 +185,7 @@ ctx.stroke();
 
   if(state.ghost && state.ghostHand){  // Check if ghost hand is enabled
     const a=state.ghost.seconds*Math.PI/30-Math.PI/2;
-    ctx.globalAlpha=.4;
+    ctx.globalAlpha=.5; //ghost hand transparency
     ctx.strokeStyle=state.ghost.color;
     ctx.lineWidth=6;  // Ghost hand uses thicker line if enabled
     ctx.beginPath();
