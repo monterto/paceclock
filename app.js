@@ -308,6 +308,18 @@ darkToggle.onchange = e => {
   saveSettings(); 
 };
 
+// New Info button listener
+const infoBtn = document.getElementById('infoBtn');
+const infoPanel = document.getElementById('infoPanel');
+
+infoBtn.addEventListener('click', () => {
+  infoPanel.classList.toggle('open');
+});
+//close when clicking outside
+infoPanel.addEventListener('click', (e) => {
+  if (e.target === infoPanel) infoPanel.classList.remove('open');
+});
+
 // Toggle Rest Mode without refreshing the clock call save change
 toggleRestBtn.addEventListener('click', () => {
   state.trackRest = !state.trackRest;
