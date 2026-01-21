@@ -140,7 +140,8 @@ canvas{
   border-radius:16px 16px 0 0;
   transition:.25s;
 }
-#options.open{ bottom:0; }
+#options.open { bottom: 0; }
+#infoPanel.open { bottom: 0; }
 
 #clock .row span {
   font-size: 28px;  /* Increased font size for better visibility of clock numbers */
