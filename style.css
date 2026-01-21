@@ -33,13 +33,14 @@ header{
   top: 12px;
   right: 12px;
 }
-#optionsBtn{
-  font-size:.7rem;
-  padding:4px 6px;
-  border:none;
-  border-radius:8px;
-  background:#1a2133;
-  color:var(--text);
+#optionsBtn {
+  font-size: 0.9rem;   /* Bigger text for visibility */
+  padding: 8px 12px;   /* More space around the text for easier tapping */
+  border: none;
+  border-radius: 8px;
+  background: #1a2133;
+  color: var(--text);
+  cursor: pointer;
 }
 #totalClock{
   text-align:center;
