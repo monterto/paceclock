@@ -318,6 +318,7 @@ toggleRestBtn.addEventListener('click', () => {
 
   toggleRestBtn.textContent = state.trackRest ? 'Rest ✓' : 'Rest ✗';
   digital.classList.toggle('rest', state.mode === 'rest');
+  digital.style.color = ''; // Reset inline color so CSS handles it
   saveSettings();
 });
 
