@@ -52,33 +52,6 @@ const toggleRestBtn = document.getElementById('toggleRestBtn');
 const ghostToggle = document.getElementById('ghostToggle'); // Reference to the ghost toggle checkbox
 const thickerHandsToggle = document.getElementById('thickerHandsToggle'); // Reference to thicker hands toggle checkbox
 const guardToggle = document.getElementById('guardToggle'); // Reference to guard toggle checkbox
-const infoBtn = document.getElementById('infoBtn');
-const infoPanel = document.getElementById('infoPanel');
-const optionsBtn = document.getElementById('optionsBtn');
-const options = document.getElementById('options');
-const darkToggle = document.getElementById('darkToggle');
-const resetBtn = document.getElementById('resetBtn');
-
-// Panels toggle: only one open at a time
-infoBtn.addEventListener('click', () => {
-  options.classList.remove('open');     // Close options
-  infoPanel.classList.toggle('open');   // Toggle info panel
-});
-
-optionsBtn.addEventListener('click', () => {
-  infoPanel.classList.remove('open');   // Close info
-  options.classList.toggle('open');     // Toggle options panel
-});
-
-// Close panels when clicking outside content
-infoPanel.addEventListener('click', (e) => {
-  if (e.target === infoPanel) infoPanel.classList.remove('open');
-});
-
-options.addEventListener('click', (e) => {
-  if (e.target === options) options.classList.remove('open');
-});
-
 
 // Initialize the UI to match the restored state
 darkToggle.checked = state.dark;
@@ -328,12 +301,24 @@ document.getElementById('finishBtn').addEventListener('click', () => {
   state.trackRest = false;
 });
 
-
+optionsBtn.onclick = () => options.classList.add('open');
 //toggle dark clock face and call save state change
 darkToggle.onchange = e => { 
   state.dark = e.target.checked; 
   saveSettings(); 
 };
+
+// New Info button listener
+const infoBtn = document.getElementById('infoBtn');
+const infoPanel = document.getElementById('infoPanel');
+
+infoBtn.addEventListener('click', () => {
+  infoPanel.classList.toggle('open');
+});
+//close when clicking outside
+infoPanel.addEventListener('click', (e) => {
+  if (e.target === infoPanel) infoPanel.classList.remove('open');
+});
 
 // Toggle Rest Mode without refreshing the clock call save change
 toggleRestBtn.addEventListener('click', () => {
