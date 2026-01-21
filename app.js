@@ -373,5 +373,3 @@ guardToggle.onchange = e => {
   state.guard = e.target.checked;
   saveSettings();
 };
-
-
