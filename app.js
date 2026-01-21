@@ -7,9 +7,9 @@ See the LICENSE file for details.
 */
 
 const state = {
-  dark: true,
-  trackRest: false, // Default is off, no rest tracking
-  guard: true,
+  dark: true, //Dark/Light face
+  trackRest: true, // Default is on
+  guard: true, //Double tap guard
   ghostHand: true, // Default ghost hand visibility to true
   thickerHands: true, // Default hands thickness to true
   hands: [
@@ -22,7 +22,7 @@ const state = {
   laps: [],
   lastTap: null,
   sessionStart: null,
-  mode: 'lap',  // Start in lap mode (first)
+  mode: 'rest',  // Start in rest mode (first)
   hasCompletedLap: false,
   lastSplit: 0,
   timerRunning: false,
@@ -30,6 +30,16 @@ const state = {
   isFinished: false,
   lapCount: 1  // Start lap count at 1
 };
+// save state
+const saved = localStorage.getItem('clockSettings');
+if (saved) {
+  const s = JSON.parse(saved);
+  state.dark = s.dark ?? state.dark;
+  state.trackRest = s.trackRest ?? state.trackRest;
+  state.guard = s.guard ?? state.guard;
+  state.ghostHand = s.ghostHand ?? state.ghostHand;
+  state.thickerHands = s.thickerHands ?? state.thickerHands;
+}
 
 const MIN_PRESS = 1000;
 
@@ -41,6 +51,15 @@ const list = document.getElementById('list');
 const toggleRestBtn = document.getElementById('toggleRestBtn');
 const ghostToggle = document.getElementById('ghostToggle'); // Reference to the ghost toggle checkbox
 const thickerHandsToggle = document.getElementById('thickerHandsToggle'); // Reference to thicker hands toggle checkbox
+const guardToggle = document.getElementById('guardToggle'); // Reference to guard toggle checkbox
+
+// Initialize the UI to match the restored state
+darkToggle.checked = state.dark;
+toggleRestBtn.textContent = state.trackRest ? 'Rest ✓' : 'Rest ✗';
+digital.classList.toggle('rest', state.mode === 'rest');
+ghostToggle.checked = state.ghostHand;
+thickerHandsToggle.checked = state.thickerHands;
+guardToggle.checked = state.guard;
 
 let timerInterval = null;
 let digitalTimerInterval = null;
@@ -82,6 +101,19 @@ document.addEventListener('visibilitychange', () => {
 // Request wake lock when the app is first opened
 requestWakeLock();
 
+// function for savestate
+function saveSettings() {
+  const settings = {
+    dark: state.dark,
+    trackRest: state.trackRest,
+    guard: state.guard,
+    ghostHand: state.ghostHand,
+    thickerHands: state.thickerHands
+  };
+  localStorage.setItem('clockSettings', JSON.stringify(settings));
+}
+
+
 // Format function for displaying time
 function fmt(ms){
   const t = Math.floor(ms/100);
@@ -111,7 +143,7 @@ function drawClock(){
   }
 
   ctx.fillStyle=state.dark?'#9aa4b2':'#000';
-  ctx.font='bold 28px system-ui';  // Set font size to 28px for the clock numbers
+  ctx.font='bold 28px system-ui';  // Set font size for the clock numbers
   ctx.textAlign='center';
   ctx.textBaseline='middle';
   for(let n=5;n<=60;n+=5){
@@ -123,18 +155,37 @@ function drawClock(){
   state.hands.forEach(h=>{
     const s=(base+h.offset)%60;
     const a=s*Math.PI/30-Math.PI/2;
-    ctx.strokeStyle=h.color;
-    ctx.lineWidth = state.thickerHands ? 6 : 3;  // Change line width based on the toggle state
-    ctx.lineCap='round';
-    ctx.beginPath();
-    ctx.moveTo(cx,cy);
-    ctx.lineTo(cx+Math.cos(a)*(r-28),cy+Math.sin(a)*(r-28));
-    ctx.stroke();
+    const length = r - 28;
+const baseWidth = state.thickerHands ? 6 : 3; 
+
+// --- outline ---
+ctx.strokeStyle = '#000';
+ctx.lineWidth = baseWidth + 2; // 1px outline on each side
+ctx.lineCap = 'round';
+ctx.beginPath();
+ctx.moveTo(cx, cy);
+ctx.lineTo(
+  cx + Math.cos(a) * length,
+  cy + Math.sin(a) * length
+);
+ctx.stroke();
+
+// --- colored hand ---
+ctx.strokeStyle = h.color;
+ctx.lineWidth = baseWidth;
+ctx.beginPath();
+ctx.moveTo(cx, cy);
+ctx.lineTo(
+  cx + Math.cos(a) * length,
+  cy + Math.sin(a) * length
+);
+ctx.stroke();
+
   });
 
   if(state.ghost && state.ghostHand){  // Check if ghost hand is enabled
     const a=state.ghost.seconds*Math.PI/30-Math.PI/2;
-    ctx.globalAlpha=.4;
+    ctx.globalAlpha=.5; //ghost hand transparency
     ctx.strokeStyle=state.ghost.color;
     ctx.lineWidth=6;  // Ghost hand uses thicker line if enabled
     ctx.beginPath();
@@ -185,14 +236,48 @@ canvas.addEventListener('pointerdown',()=>{
 
   digital.classList.toggle('rest', state.mode === 'rest');
 
-  const base = (now / 1000) % 60;
-  let best = { d: Infinity };
+// Determine ghost hand on tap
+const base = (now / 1000) % 60; // current seconds
+let best = null;
+let minDistance = Infinity;
+
+state.hands.forEach(h => {
+  const s = (base + h.offset) % 60;
+
+  // Only consider hands in the top windows: 45-60 or 0-2
+  if ((s >= 45 && s <= 60) || (s >= 0 && s <= 2)) {
+    // Distance to "top" (0 seconds)
+    const distance = s <= 2 ? s : 60 - s; // shortest distance to top
+    if (distance < minDistance) {
+      minDistance = distance;
+      best = { seconds: s, color: h.color };
+    }
+  }
+});
+
+// Fallback: if no hand was in the range, snap the nearest hand to 0
+if (!best) {
+  let closest = state.hands[0];
+  let closestDist = Math.min(
+    (base + closest.offset) % 60, 
+    60 - ((base + closest.offset) % 60)
+  );
+
   state.hands.forEach(h => {
     const s = (base + h.offset) % 60;
-    const d = 60 - s;
-    if (d >= 0 && d < best.d) best = { seconds: s, color: h.color, d };
+    const d = Math.min(s, 60 - s);
+    if (d < closestDist) {
+      closest = h;
+      closestDist = d;
+    }
   });
-  state.ghost = best;
+
+  best = { seconds: 0, color: closest.color }; // snap to top
+}
+
+state.ghost = best;
+
+
 
   if (!state.digitalTimerRunning) {
     startDigitalTimer();
@@ -251,30 +336,42 @@ document.getElementById('finishBtn').addEventListener('click', () => {
 });
 
 optionsBtn.onclick = () => options.classList.add('open');
-darkToggle.onchange = e => state.dark = e.target.checked;
+//toggle dark clock face and call save state change
+darkToggle.onchange = e => { 
+  state.dark = e.target.checked; 
+  saveSettings(); 
+};
 
-// Toggle Rest Mode without refreshing the clock
+// Toggle Rest Mode without refreshing the clock call save change
 toggleRestBtn.addEventListener('click', () => {
-  state.trackRest = !state.trackRest;  // Toggle rest mode on/off
-  // Update the button text based on the current state
-  toggleRestBtn.textContent = state.trackRest ? 'Rest ✓' : 'Rest ✗';
+  state.trackRest = !state.trackRest;
 
-  // Update the mode to reflect the toggle
-  if (!state.trackRest) {
-    state.mode = 'lap';  // Force lap mode if rest tracking is off
-  } else if (state.mode === 'lap') {
-    state.mode = 'rest';  // If rest is on, switch to rest mode
-  }
+  // Update mode immediately after changing trackRest
+  if (!state.trackRest) state.mode = 'lap';
+  else if (state.mode === 'lap') state.mode = 'rest';
+
+  toggleRestBtn.textContent = state.trackRest ? 'Rest ✓' : 'Rest ✗';
+  digital.classList.toggle('rest', state.mode === 'rest');
+  digital.style.color = ''; // Reset inline color so CSS handles it
+  saveSettings();
 });
+
 
 // Ghost hand toggle
 ghostToggle.onchange = () => {
-  state.ghostHand = ghostToggle.checked;  // Toggle ghost hand visibility
+  state.ghostHand = ghostToggle.checked;
+  saveSettings();
 };
 
 // Thicker hands toggle
 thickerHandsToggle.onchange = () => {
-  state.thickerHands = thickerHandsToggle.checked;  // Toggle thicker hands visibility
+  state.thickerHands = thickerHandsToggle.checked;
+  saveSettings();
 };
 
-guardToggle.onchange = e => state.guard = e.target.checked;
+guardToggle.onchange = e => {
+  state.guard = e.target.checked;
+  saveSettings();
+};
+
+
