@@ -25,6 +25,7 @@ Installation:
   - Select "Add to Home screen"
   - Web browser will prompt for installation
 
-
+Updates:
+  - 2026/01/21: Improved UI/defaults, improvements to ghost hands, localsave for settings.
     
 License: PolyForm Noncommercial — free for non-commercial use, commercial use prohibited.
