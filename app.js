@@ -273,8 +273,8 @@ function drawClock() {
   
   try {
     const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, 360, 360);
-    const cx = 180, cy = 180, r = 162;
+    ctx.clearRect(0, 0, 540, 540);
+    const cx = 270, cy = 270, r = 243;
     
     drawCount++;
     if (drawCount === 1) {
@@ -288,7 +288,7 @@ function drawClock() {
   ctx.fill();
 
   // Border
-  ctx.lineWidth = 4;
+  ctx.lineWidth = 5;
   ctx.strokeStyle = state.display.dark ? '#444' : '#111';
   ctx.stroke();
 
@@ -296,28 +296,28 @@ function drawClock() {
   for (let i = 0; i < 60; i++) {
     const a = i * Math.PI / 30 - Math.PI / 2;
     const isMajor = i % 5 === 0;
-    ctx.lineWidth = isMajor ? 3 : 1;
+    ctx.lineWidth = isMajor ? 4 : 2;
     ctx.strokeStyle = state.display.dark ? '#555' : '#111';
     ctx.beginPath();
     ctx.moveTo(cx + Math.cos(a) * r, cy + Math.sin(a) * r);
-    ctx.lineTo(cx + Math.cos(a) * (r - (isMajor ? 28 : 14)), cy + Math.sin(a) * (r - (isMajor ? 28 : 14)));
+    ctx.lineTo(cx + Math.cos(a) * (r - (isMajor ? 32 : 16)), cy + Math.sin(a) * (r - (isMajor ? 32 : 16)));
     ctx.stroke();
   }
 
   // Numbers
   ctx.fillStyle = state.display.dark ? '#9aa4b2' : '#000';
-  ctx.font = 'bold 28px system-ui';
+  ctx.font = 'bold 32px system-ui';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   for (let n = 5; n <= 60; n += 5) {
     const a = n * Math.PI / 30 - Math.PI / 2;
-    ctx.fillText(n, cx + Math.cos(a) * (r - 52), cy + Math.sin(a) * (r - 52));
+    ctx.fillText(n, cx + Math.cos(a) * (r - 58), cy + Math.sin(a) * (r - 58));
   }
 
   // Clock hands - behavior depends on mode
   const base = (Date.now() / 1000) % 60;
-  const length = r - 28;
-  const baseWidth = state.display.thickerHands ? 6 : 3;
+  const length = r - 32;
+  const baseWidth = state.display.thickerHands ? 12 : 8;
 
   if (state.currentMode === 'lapTimer') {
     // Draw lap timer ghost hand FIRST (behind regular hands)
@@ -327,19 +327,19 @@ function drawClock() {
       
       // Subtle outline for better visibility
       ctx.strokeStyle = state.display.dark ? '#888' : '#000';
-      ctx.lineWidth = 8;
+      ctx.lineWidth = 13;
       ctx.lineCap = 'round';
       ctx.beginPath();
       ctx.moveTo(cx, cy);
-      ctx.lineTo(cx + Math.cos(a) * (r - 28), cy + Math.sin(a) * (r - 28));
+      ctx.lineTo(cx + Math.cos(a) * (r - 32), cy + Math.sin(a) * (r - 32));
       ctx.stroke();
       
       // Colored ghost hand
       ctx.strokeStyle = state.lapTimer.ghost.color;
-      ctx.lineWidth = 6;
+      ctx.lineWidth = 11;
       ctx.beginPath();
       ctx.moveTo(cx, cy);
-      ctx.lineTo(cx + Math.cos(a) * (r - 28), cy + Math.sin(a) * (r - 28));
+      ctx.lineTo(cx + Math.cos(a) * (r - 32), cy + Math.sin(a) * (r - 32));
       ctx.stroke();
       
       ctx.globalAlpha = 1;
@@ -376,19 +376,19 @@ function drawClock() {
       
       // Subtle outline for better visibility
       ctx.strokeStyle = state.display.dark ? '#888' : '#000';
-      ctx.lineWidth = 10;
+      ctx.lineWidth = 15;
       ctx.lineCap = 'round';
       ctx.beginPath();
       ctx.moveTo(cx, cy);
-      ctx.lineTo(cx + Math.cos(a) * (r - 28), cy + Math.sin(a) * (r - 28));
+      ctx.lineTo(cx + Math.cos(a) * (r - 32), cy + Math.sin(a) * (r - 32));
       ctx.stroke();
       
       // Colored ghost hand (uses the color from session start)
       ctx.strokeStyle = state.intervalTimer.ghostColor;
-      ctx.lineWidth = 8;
+      ctx.lineWidth = 13;
       ctx.beginPath();
       ctx.moveTo(cx, cy);
-      ctx.lineTo(cx + Math.cos(a) * (r - 28), cy + Math.sin(a) * (r - 28));
+      ctx.lineTo(cx + Math.cos(a) * (r - 32), cy + Math.sin(a) * (r - 32));
       ctx.stroke();
       
       ctx.globalAlpha = 1;
@@ -421,7 +421,7 @@ function drawClock() {
   // Center dot
   ctx.fillStyle = state.display.dark ? '#777' : '#000';
   ctx.beginPath();
-  ctx.arc(cx, cy, 8, 0, Math.PI * 2);
+  ctx.arc(cx, cy, 10, 0, Math.PI * 2);
   ctx.fill();
   
   } catch (err) {
@@ -482,7 +482,7 @@ function calculateGhostHand(now) {
 // ============================================================================
 
 const MIN_PRESS = 1000;
-const RESET_HOLD_TIME = 1500; // 1.5 seconds - fast enough for intentional, slow enough to prevent accidents
+const RESET_HOLD_TIME = 800; // 0.8 seconds - fast enough to prevent accidents
 let digitalTimerInterval = null;
 
 function startDigitalTimer() {
@@ -1202,11 +1202,28 @@ function setupEventListeners() {
   };
 
   menuOverlay.onclick = () => {
-    menu.classList.remove('open');
-    menuOverlay.classList.remove('visible');
-    options.classList.remove('open');
-    intervalConfigPanel.classList.remove('open');
+    // Only close menu, not options or interval config (they handle their own overlay clicks)
+    if (menu.classList.contains('open')) {
+      menu.classList.remove('open');
+      menuOverlay.classList.remove('visible');
+    } else if (options.classList.contains('open')) {
+      options.classList.remove('open');
+      menuOverlay.classList.remove('visible');
+    } else if (intervalConfigPanel.classList.contains('open')) {
+      intervalConfigPanel.classList.remove('open');
+      menuOverlay.classList.remove('visible');
+    }
   };
+
+  // Prevent clicks inside options panel from closing it
+  options.addEventListener('click', (e) => {
+    e.stopPropagation();
+  });
+
+  // Prevent clicks inside interval config panel from closing it
+  intervalConfigPanel.addEventListener('click', (e) => {
+    e.stopPropagation();
+  });
 
   // Mode switching
   document.querySelectorAll('.mode-item').forEach(item => {
@@ -1219,8 +1236,14 @@ function setupEventListeners() {
   // Settings from menu
   document.getElementById('menuSettings').onclick = () => {
     menu.classList.remove('open');
-    menuOverlay.classList.remove('visible');
+    menuOverlay.classList.add('visible');
     options.classList.add('open');
+  };
+
+  // Close settings button
+  document.getElementById('closeSettings').onclick = () => {
+    options.classList.remove('open');
+    menuOverlay.classList.remove('visible');
   };
 
   // Canvas tap and text selection prevention
@@ -1356,6 +1379,7 @@ function setupEventListeners() {
   // Interval timer controls
   configIntervalsBtn.onclick = () => {
     intervalConfigPanel.classList.add('open');
+    menuOverlay.classList.add('visible');
   };
 
   stopIntervalBtn.onclick = () => {
@@ -1388,6 +1412,7 @@ function setupEventListeners() {
     updateIntervalSummary();
     saveSettings();
     intervalConfigPanel.classList.remove('open');
+    menuOverlay.classList.remove('visible');
   };
 
   cancelIntervalConfig.onclick = () => {
@@ -1402,5 +1427,6 @@ function setupEventListeners() {
     volumeValue.textContent = `${state.intervalTimer.volume}%`;
     
     intervalConfigPanel.classList.remove('open');
+    menuOverlay.classList.remove('visible');
   };
 }
