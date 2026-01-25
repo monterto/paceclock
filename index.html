@@ -1,68 +1,234 @@
 <!--
 Copyright © 2026 monterto
-
 Licensed under the PolyForm Noncommercial License 1.0.0.
 You may not use this software for commercial purposes.
-See the LICENSE file for details.
 -->
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Pace Clock</title>
-<!-- Fullscreen -->
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">   
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pace Clock</title>
+  
+  <!-- Fullscreen & Mobile -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="mobile-web-app-capable" content="yes">
+  
   <!-- PWA -->
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#0b0f14">
-
+  
+  <!-- Icons -->
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  
   <!-- Styles -->
   <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-<div class="app">
+  <div class="app" role="main">
 
-<header>
-  <button id="optionsBtn">⚙︎</button>
-</header>
+    <header>
+      <button id="menuBtn" aria-label="Open menu">☰</button>
+    </header>
 
-<div id="totalClock">00:00.0</div>
-<div id="digital">00:00.0</div>
+    <div id="totalClock" aria-label="Total session time">00:00.0</div>
+    <div id="digital" aria-label="Current interval time" aria-live="polite">00:00.0</div>
 
-<canvas id="clock" width="360" height="360"></canvas>
+    <canvas 
+      id="clock" 
+      width="360" 
+      height="360"
+      role="button"
+      aria-label="Tap to record lap or rest interval"
+      tabindex="0"
+    ></canvas>
 
-<!-- Controls Container -->
-<div class="controls-container">
-  <button id="finishBtn">🏁 Finish</button>
-  <button id="toggleRestBtn">Rest ✗</button>
-  <button id="resetBtn">⟳ Reset</button>
-</div>
+    <!-- Lap Timer Controls -->
+    <div id="lapTimerControls" class="controls-container" role="toolbar" aria-label="Session controls">
+      <button id="saveBtn" aria-label="Save session"><span>💾 Save</span></button>
+      <button id="toggleRestBtn" aria-label="Toggle rest tracking"><span>Rest ✗</span></button>
+      <button id="resetBtn" aria-label="Hold to reset session"><span>🔄 Reset</span></button>
+    </div>
 
-<div id="list"></div>
-</div>
+    <!-- Interval Timer Controls -->
+    <div id="intervalTimerControls" class="controls-container hidden" role="toolbar" aria-label="Interval controls">
+      <button id="configIntervalsBtn" aria-label="Configure intervals"><span>⏱️ Setup</span></button>
+      <button id="stopIntervalBtn" aria-label="Stop interval timer"><span>⏹️ Stop</span></button>
+    </div>
 
-<div id="options">
-  <label><input type="checkbox" id="darkToggle" checked> Dark clock face</label><br><br>
-  <label><input type="checkbox" id="guardToggle" checked> Accidental press guard</label><br><br>
-  <label><input type="checkbox" id="ghostToggle" checked> Show Ghost Hand</label><br><br> <!-- Added Ghost Hand toggle -->
-  <label><input type="checkbox" id="thickerHandsToggle" checked> Thicker Hands</label><br><br> <!-- Added Thicker Hands toggle -->
-  <button onclick="options.classList.remove('open')">Close</button>
-</div>
-   <!-- App Logic -->
+    <!-- Lap Timer List -->
+    <div id="list" role="log" aria-label="Lap history"></div>
+
+    <!-- Interval Timer Display -->
+    <div id="intervalDisplay" class="hidden">
+      <div id="intervalStatus" class="interval-status waiting">TAP TO START</div>
+      <div id="intervalRounds"></div>
+      <div id="intervalConfig">
+        <div class="config-summary">
+          <div>Countdown: <span id="summaryCountdown">5s</span></div>
+          <div>Work: <span id="summaryWork">60s</span></div>
+          <div>Rest: <span id="summaryRest">60s</span></div>
+          <div>Rounds: <span id="summaryRounds">∞</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hamburger Menu -->
+  <div id="menu" role="dialog" aria-labelledby="menuTitle">
+    <h2 id="menuTitle">Pace Clock</h2>
+    
+    <div class="menu-section">
+      <h3>Modes</h3>
+      <button class="menu-item mode-item active" data-mode="lapTimer">
+        <span class="mode-icon">⏱️</span>
+        <span class="mode-label">Lap Timer</span>
+        <span class="mode-check">✓</span>
+      </button>
+      <button class="menu-item mode-item" data-mode="intervalTimer">
+        <span class="mode-icon">⏲️</span>
+        <span class="mode-label">Interval Timer</span>
+        <span class="mode-check"></span>
+      </button>
+    </div>
+
+    <div class="menu-section">
+      <button class="menu-item" id="menuSettings">
+        <span>Settings</span>
+        <span class="arrow">›</span>
+      </button>
+    </div>
+
+    <button class="menu-close" aria-label="Close menu">Close</button>
+  </div>
+
+  <!-- Menu Overlay -->
+  <div id="menuOverlay"></div>
+
+  <!-- Settings Panel (existing options, now accessible from menu) -->
+  <div id="options" role="dialog" aria-labelledby="optionsTitle" aria-modal="true">
+    <h2 id="optionsTitle">Settings</h2>
+    
+    <div class="settings-section">
+      <h3>Display</h3>
+      <label>
+        <input type="checkbox" id="darkToggle" checked aria-describedby="darkDesc">
+        Dark clock face
+      </label>
+      <span id="darkDesc" class="sr-only">Toggle between dark and light clock face</span>
+      <br><br>
+      
+      <label>
+        <input type="checkbox" id="ghostToggle" checked aria-describedby="ghostDesc">
+        Show Ghost Hand
+      </label>
+      <span id="ghostDesc" class="sr-only">Display ghost hand showing previous lap position</span>
+      <br><br>
+      
+      <label>
+        <input type="checkbox" id="thickerHandsToggle" checked aria-describedby="thickerDesc">
+        Thicker Hands
+      </label>
+      <span id="thickerDesc" class="sr-only">Make clock hands thicker for better visibility</span>
+      <br><br>
+    </div>
+
+    <div class="settings-section" id="lapTimerSettings">
+      <h3>Lap Timer</h3>
+      <label>
+        <input type="checkbox" id="guardToggle" checked aria-describedby="guardDesc">
+        Accidental press guard
+      </label>
+      <span id="guardDesc" class="sr-only">Prevent accidental double-taps within 1 second</span>
+      <br><br>
+    </div>
+    
+    <button onclick="options.classList.remove('open')" aria-label="Close settings">Close</button>
+    
+    <div class="keyboard-shortcuts">
+      <h3>Keyboard Shortcuts</h3>
+      <ul>
+        <li><kbd>Space</kbd> - Record lap/rest</li>
+        <li><kbd>Ctrl+S</kbd> - Save session (hold completes)</li>
+        <li><kbd>Shift+Delete</kbd> - Reset session (hold completes)</li>
+      </ul>
+      <p style="margin-top: 12px; font-size: 0.85rem; color: var(--muted);">
+        <strong>Mobile:</strong> Hold Save or Reset buttons for 1.5 seconds
+      </p>
+    </div>
+  </div>
+
+  <!-- Interval Configuration Panel -->
+  <div id="intervalConfigPanel" role="dialog" aria-labelledby="intervalConfigTitle">
+    <h2 id="intervalConfigTitle">Interval Setup</h2>
+    
+    <div class="config-group">
+      <label for="countdownInput">Countdown Before Start</label>
+      <div class="input-group">
+        <input type="number" id="countdownInput" min="0" max="60" value="5">
+        <span>seconds</span>
+      </div>
+    </div>
+
+    <div class="config-group">
+      <label for="workInput">Work Interval</label>
+      <div class="input-group">
+        <input type="number" id="workInput" min="1" max="600" value="60">
+        <span>seconds</span>
+      </div>
+    </div>
+
+    <div class="config-group">
+      <label for="restInput">Rest Interval</label>
+      <div class="input-group">
+        <input type="number" id="restInput" min="1" max="600" value="60">
+        <span>seconds</span>
+      </div>
+    </div>
+
+    <div class="config-group">
+      <label for="roundsInput">Total Rounds</label>
+      <div class="input-group">
+        <input type="number" id="roundsInput" min="1" max="999" value="">
+        <label class="checkbox-label">
+          <input type="checkbox" id="infiniteRounds" checked>
+          Infinite
+        </label>
+      </div>
+    </div>
+
+    <div class="config-group">
+      <label>Sound</label>
+      <label class="checkbox-label">
+        <input type="checkbox" id="beepEnabled" checked>
+        Enable beeps
+      </label>
+      <div class="volume-control">
+        <label for="volumeSlider">Volume</label>
+        <input type="range" id="volumeSlider" min="0" max="100" value="70">
+        <span id="volumeValue">70%</span>
+      </div>
+    </div>
+
+    <div class="config-buttons">
+      <button id="saveIntervalConfig" class="primary-btn">Save</button>
+      <button id="cancelIntervalConfig">Cancel</button>
+    </div>
+  </div>
+
+  <!-- App Logic -->
   <script src="app.js"></script>
   
-<!-- Service Worker Registration -->
+  <!-- Service Worker Registration -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('service-worker.js')
           .then(registration => {
-            console.log('Service Worker registered with scope:', registration.scope);
+            console.log('Service Worker registered:', registration.scope);
           })
           .catch(error => {
             console.error('Service Worker registration failed:', error);
