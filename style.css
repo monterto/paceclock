@@ -33,10 +33,10 @@ body {
 .app {
   max-width: 420px;
   margin: auto;
-  padding: 12px;
+  padding: 6px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
   min-height: 100vh;
 }
 
@@ -45,8 +45,8 @@ header {
   display: flex;
   justify-content: flex-end;
   position: absolute;
-  top: 12px;
-  right: 12px;
+  top: 6px;
+  right: 6px;
   z-index: 10;
 }
 
@@ -78,7 +78,7 @@ header {
 /* Timers */
 #totalClock {
   text-align: center;
-  font-size: 0.85rem;
+  font-size: 1rem;
   color: var(--muted);
   letter-spacing: 0.08em;
   font-variant-numeric: tabular-nums;
@@ -87,7 +87,7 @@ header {
 
 #digital {
   text-align: center;
-  font-size: 2rem;
+  font-size: 3rem;
   font-weight: 700;
   letter-spacing: 0.1em;
   color: var(--text);
@@ -218,7 +218,7 @@ canvas.glow-gray {
   width: 0;
   height: 100%;
   background: linear-gradient(90deg, rgba(77, 163, 255, 0.3), rgba(77, 163, 255, 0.5));
-  animation: resetProgress 1.5s linear forwards;
+  animation: resetProgress 0.8s linear forwards;
   z-index: 0;
 }
 
@@ -241,7 +241,7 @@ canvas.glow-gray {
   width: 0;
   height: 100%;
   background: linear-gradient(90deg, rgba(255, 77, 77, 0.3), rgba(255, 77, 77, 0.5));
-  animation: resetProgress 1.5s linear forwards;
+  animation: resetProgress 0.8s linear forwards;
   z-index: 0;
 }
 
@@ -350,64 +350,79 @@ canvas.glow-gray {
 /* Options Panel */
 #options {
   position: fixed;
-  left: 0;
-  right: 0;
-  bottom: -100%;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) scale(0.9);
+  opacity: 0;
+  pointer-events: none;
   background: var(--panel);
-  padding: 24px;
-  border-radius: 16px 16px 0 0;
-  transition: bottom 0.3s ease;
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
-  z-index: 100;
-  max-height: 80vh;
+  padding: 28px;
+  border-radius: 16px;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+  z-index: 200;
+  max-height: 85vh;
+  max-width: 400px;
+  width: calc(100% - 32px);
   overflow-y: auto;
 }
 
 #options.open {
-  bottom: 0;
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+  pointer-events: all;
 }
 
 #options h2 {
-  margin: 0 0 20px 0;
-  font-size: 1.2rem;
+  margin: 0 0 24px 0;
+  font-size: 1.4rem;
   color: var(--text);
+  text-align: center;
+  border-bottom: 2px solid var(--accent);
+  padding-bottom: 12px;
 }
 
 .settings-section {
-  margin-bottom: 24px;
+  margin-bottom: 28px;
 }
 
 .settings-section h3 {
-  margin: 0 0 12px 0;
-  font-size: 0.9rem;
-  color: var(--muted);
+  margin: 0 0 16px 0;
+  font-size: 0.85rem;
+  color: var(--accent);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.1em;
+  font-weight: 600;
 }
 
 #options label {
   display: flex;
   align-items: center;
   cursor: pointer;
-  padding: 8px 0;
+  padding: 12px 16px;
+  background: #1a2133;
+  border-radius: 8px;
+  margin-bottom: 8px;
   transition: var(--transition);
 }
 
 #options label:hover {
-  color: var(--accent);
+  background: #242d42;
+  transform: translateX(4px);
 }
 
 #options input[type="checkbox"] {
   margin-right: 12px;
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   cursor: pointer;
   accent-color: var(--accent);
+  flex-shrink: 0;
 }
 
 #options button {
-  margin-top: 16px;
-  padding: 12px 24px;
+  margin-top: 20px;
+  padding: 14px 24px;
   font-size: 1rem;
   border: none;
   border-radius: var(--border-radius);
@@ -432,17 +447,18 @@ canvas.glow-gray {
 
 /* Keyboard Shortcuts */
 .keyboard-shortcuts {
-  margin-top: 24px;
-  padding-top: 16px;
-  border-top: 1px solid var(--muted);
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 2px solid #1a2133;
 }
 
 .keyboard-shortcuts h3 {
-  margin: 0 0 12px 0;
-  font-size: 0.9rem;
-  color: var(--muted);
+  margin: 0 0 16px 0;
+  font-size: 0.85rem;
+  color: var(--accent);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.1em;
+  font-weight: 600;
 }
 
 .keyboard-shortcuts ul {
@@ -452,20 +468,39 @@ canvas.glow-gray {
 }
 
 .keyboard-shortcuts li {
-  padding: 6px 0;
-  font-size: 0.85rem;
+  padding: 10px 16px;
+  font-size: 0.9rem;
+  background: #1a2133;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
 }
 
 .keyboard-shortcuts kbd {
   display: inline-block;
-  padding: 2px 8px;
-  background: #1a2133;
-  border: 1px solid var(--muted);
-  border-radius: 4px;
+  padding: 4px 10px;
+  background: var(--bg);
+  border: 1px solid var(--accent);
+  border-radius: 6px;
   font-family: monospace;
   font-size: 0.8rem;
-  margin-right: 8px;
-  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.2);
+  margin-right: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  color: var(--accent);
+  font-weight: 600;
+  min-width: 80px;
+  text-align: center;
+}
+
+.keyboard-shortcuts p {
+  margin-top: 16px;
+  padding: 12px 16px;
+  font-size: 0.85rem;
+  color: var(--muted);
+  background: #1a2133;
+  border-radius: 8px;
+  border-left: 3px solid var(--accent);
 }
 
 /* Screen Reader Only */
@@ -511,7 +546,11 @@ canvas:focus-visible {
 /* Responsive */
 @media (max-width: 375px) {
   #digital {
-    font-size: 1.75rem;
+    font-size: 2.25rem;
+  }
+  
+  #totalClock {
+    font-size: 0.9rem;
   }
 
   #saveBtn,
@@ -737,40 +776,50 @@ canvas:focus-visible {
 /* Interval Configuration Panel */
 #intervalConfigPanel {
   position: fixed;
-  left: 0;
-  right: 0;
-  bottom: -100%;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) scale(0.9);
+  opacity: 0;
+  pointer-events: none;
   background: var(--panel);
-  padding: 24px;
-  border-radius: 16px 16px 0 0;
-  transition: bottom 0.3s ease;
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
-  z-index: 100;
-  max-height: 80vh;
+  padding: 28px;
+  border-radius: 16px;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+  z-index: 200;
+  max-height: 85vh;
+  max-width: 400px;
+  width: calc(100% - 32px);
   overflow-y: auto;
 }
 
 #intervalConfigPanel.open {
-  bottom: 0;
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+  pointer-events: all;
 }
 
 #intervalConfigPanel h2 {
   margin: 0 0 24px 0;
-  font-size: 1.2rem;
+  font-size: 1.4rem;
   color: var(--text);
+  text-align: center;
+  border-bottom: 2px solid var(--accent);
+  padding-bottom: 12px;
 }
 
 .config-group {
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 .config-group > label {
   display: block;
-  font-size: 0.9rem;
-  color: var(--muted);
-  margin-bottom: 8px;
+  font-size: 0.85rem;
+  color: var(--accent);
+  margin-bottom: 10px;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.1em;
+  font-weight: 600;
 }
 
 .input-group {
@@ -781,7 +830,7 @@ canvas:focus-visible {
 
 .input-group input[type="number"] {
   flex: 1;
-  padding: 10px 12px;
+  padding: 12px 14px;
   background: #1a2133;
   border: 2px solid transparent;
   border-radius: var(--border-radius);
@@ -793,6 +842,7 @@ canvas:focus-visible {
 .input-group input[type="number"]:focus {
   outline: none;
   border-color: var(--accent);
+  background: #242d42;
 }
 
 .input-group span {
@@ -803,14 +853,22 @@ canvas:focus-visible {
 .checkbox-label {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   cursor: pointer;
-  margin-top: 8px;
+  margin-top: 10px;
+  padding: 12px 16px;
+  background: #1a2133;
+  border-radius: 8px;
+  transition: var(--transition);
+}
+
+.checkbox-label:hover {
+  background: #242d42;
 }
 
 .checkbox-label input[type="checkbox"] {
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   cursor: pointer;
   accent-color: var(--accent);
 }
@@ -820,11 +878,15 @@ canvas:focus-visible {
   display: flex;
   align-items: center;
   gap: 12px;
+  padding: 12px 16px;
+  background: #1a2133;
+  border-radius: 8px;
 }
 
 .volume-control label {
   font-size: 0.85rem;
-  color: var(--muted);
+  color: var(--text);
+  min-width: 60px;
 }
 
 .volume-control input[type="range"] {
@@ -834,19 +896,21 @@ canvas:focus-visible {
 
 .volume-control span {
   font-size: 0.85rem;
-  color: var(--text);
-  min-width: 40px;
+  color: var(--accent);
+  min-width: 45px;
+  text-align: right;
+  font-weight: 600;
 }
 
 .config-buttons {
   display: flex;
   gap: 12px;
-  margin-top: 24px;
+  margin-top: 28px;
 }
 
 .config-buttons button {
   flex: 1;
-  padding: 12px;
+  padding: 14px;
   border: none;
   border-radius: var(--border-radius);
   font-size: 1rem;
@@ -863,13 +927,17 @@ canvas:focus-visible {
 .primary-btn:hover {
   background: #5db3ff;
   transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(77, 163, 255, 0.4);
 }
 
 .config-buttons button:not(.primary-btn) {
   background: #1a2133;
   color: var(--text);
+  border: 2px solid #242d42;
 }
 
 .config-buttons button:not(.primary-btn):hover {
   background: #242d42;
+  border-color: var(--muted);
+  transform: translateY(-2px);
 }
