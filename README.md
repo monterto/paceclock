@@ -10,6 +10,7 @@ Features:
   - Optional rest timer
   - Optional ghost hand to track start/end times
   - Dark/light clock face
+  - Interval mode
   - Installable as a PWA
 
 Usage:
