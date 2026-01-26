@@ -49,7 +49,7 @@ You may not use this software for commercial purposes.
     <!-- Lap Timer Controls -->
     <div id="lapTimerControls" class="controls-container" role="toolbar" aria-label="Session controls">
       <button id="saveBtn" aria-label="Save session"><span>💾 Save</span></button>
-      <button id="toggleRestBtn" aria-label="Toggle rest tracking"><span>Rest ✗</span></button>
+      <button id="toggleRestBtn" aria-label="Toggle rest tracking"><span>Rest ☐</span></button>
       <button id="resetBtn" aria-label="Hold to reset session"><span>🔄 Reset</span></button>
     </div>
 
@@ -129,11 +129,47 @@ You may not use this software for commercial purposes.
       <br><br>
       
       <label>
-        <input type="checkbox" id="thickerHandsToggle" checked aria-describedby="thickerDesc">
-        Thicker Hands
+        <input type="checkbox" id="singleHandToggle" aria-describedby="singleDesc">
+        Single Hand Mode
       </label>
-      <span id="thickerDesc" class="sr-only">Make clock hands thicker for better visibility</span>
+      <span id="singleDesc" class="sr-only">Show only the red hand instead of all four hands</span>
       <br><br>
+      
+      <div class="hand-style-section">
+        <p class="hand-style-label">Clock Hand Style</p>
+        <div class="radio-group-vertical">
+          <label class="radio-option-horizontal">
+            <input type="radio" name="handStyle" value="straight" checked>
+            <span class="radio-label">Straight</span>
+          </label>
+          <label class="radio-option-horizontal">
+            <input type="radio" name="handStyle" value="tapered">
+            <span class="radio-label">Tapered</span>
+          </label>
+          <label class="radio-option-horizontal">
+            <input type="radio" name="handStyle" value="diamond">
+            <span class="radio-label">Diamond</span>
+          </label>
+        </div>
+      </div>
+      
+      <div class="hand-style-section" id="handWidthSection">
+        <p class="hand-style-label">Hand Width</p>
+        <div class="radio-group">
+          <label class="radio-option">
+            <input type="radio" name="handWidth" value="thin">
+            <span class="radio-label">Thin</span>
+          </label>
+          <label class="radio-option">
+            <input type="radio" name="handWidth" value="standard" checked>
+            <span class="radio-label">Standard</span>
+          </label>
+          <label class="radio-option">
+            <input type="radio" name="handWidth" value="bold">
+            <span class="radio-label">Bold</span>
+          </label>
+        </div>
+      </div>
     </div>
 
     <div class="settings-section" id="lapTimerSettings">
@@ -156,7 +192,7 @@ You may not use this software for commercial purposes.
         <li><kbd>Shift+Delete</kbd> - Reset session (hold completes)</li>
       </ul>
       <p style="margin-top: 12px; font-size: 0.85rem; color: var(--muted);">
-        <strong>Mobile:</strong> Hold Save or Reset buttons for 1.5 seconds
+        <strong>Mobile:</strong> Hold Save or Reset buttons for 0.8 seconds
       </p>
     </div>
   </div>
