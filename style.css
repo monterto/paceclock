@@ -356,7 +356,7 @@ canvas.glow-gray {
   opacity: 0;
   pointer-events: none;
   background: var(--panel);
-  padding: 28px;
+  padding: 20px;
   border-radius: 16px;
   transition: opacity 0.3s ease, transform 0.3s ease;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
@@ -374,21 +374,21 @@ canvas.glow-gray {
 }
 
 #options h2 {
-  margin: 0 0 24px 0;
-  font-size: 1.4rem;
+  margin: 0 0 16px 0;
+  font-size: 1.3rem;
   color: var(--text);
   text-align: center;
   border-bottom: 2px solid var(--accent);
-  padding-bottom: 12px;
+  padding-bottom: 10px;
 }
 
 .settings-section {
-  margin-bottom: 28px;
+  margin-bottom: 16px;
 }
 
 .settings-section h3 {
-  margin: 0 0 16px 0;
-  font-size: 0.85rem;
+  margin: 0 0 10px 0;
+  font-size: 0.8rem;
   color: var(--accent);
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -399,10 +399,10 @@ canvas.glow-gray {
   display: flex;
   align-items: center;
   cursor: pointer;
-  padding: 12px 16px;
+  padding: 8px 12px;
   background: #1a2133;
   border-radius: 8px;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   transition: var(--transition);
 }
 
@@ -420,26 +420,38 @@ canvas.glow-gray {
   flex-shrink: 0;
 }
 
+.checkbox-group {
+  margin-bottom: 12px;
+}
+
+.checkbox-group label {
+  margin-bottom: 4px;
+}
+
+.checkbox-group label:last-child {
+  margin-bottom: 0;
+}
+
 .hand-style-section {
-  margin-top: 20px;
+  margin-top: 12px;
 }
 
 .hand-style-label {
-  margin: 0 0 12px 0;
-  font-size: 0.9rem;
+  margin: 0 0 8px 0;
+  font-size: 0.85rem;
   color: var(--text);
   font-weight: 500;
 }
 
 .radio-group {
   display: flex;
-  gap: 8px;
+  gap: 6px;
 }
 
 .radio-group-vertical {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
 }
 
 .radio-option {
@@ -448,7 +460,7 @@ canvas.glow-gray {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 16px 12px;
+  padding: 12px 10px;
   background: #1a2133;
   border: 2px solid #1a2133;
   border-radius: 8px;
@@ -460,13 +472,13 @@ canvas.glow-gray {
   display: flex;
   flex-direction: row;
   align-items: center;
-  padding: 12px 16px;
+  padding: 8px 12px;
   background: #1a2133;
   border: 2px solid #1a2133;
   border-radius: 8px;
   cursor: pointer;
   transition: var(--transition);
-  gap: 12px;
+  gap: 10px;
 }
 
 .radio-option:hover,
@@ -539,14 +551,14 @@ canvas.glow-gray {
 
 /* Keyboard Shortcuts */
 .keyboard-shortcuts {
-  margin-top: 28px;
-  padding-top: 20px;
+  margin-top: 16px;
+  padding-top: 12px;
   border-top: 2px solid #1a2133;
 }
 
 .keyboard-shortcuts h3 {
-  margin: 0 0 16px 0;
-  font-size: 0.85rem;
+  margin: 0 0 10px 0;
+  font-size: 0.8rem;
   color: var(--accent);
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -560,35 +572,35 @@ canvas.glow-gray {
 }
 
 .keyboard-shortcuts li {
-  padding: 10px 16px;
-  font-size: 0.9rem;
+  padding: 7px 12px;
+  font-size: 0.85rem;
   background: #1a2133;
   border-radius: 8px;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
   display: flex;
   align-items: center;
 }
 
 .keyboard-shortcuts kbd {
   display: inline-block;
-  padding: 4px 10px;
+  padding: 3px 8px;
   background: var(--bg);
   border: 1px solid var(--accent);
   border-radius: 6px;
   font-family: monospace;
-  font-size: 0.8rem;
-  margin-right: 12px;
+  font-size: 0.75rem;
+  margin-right: 10px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   color: var(--accent);
   font-weight: 600;
-  min-width: 80px;
+  min-width: 70px;
   text-align: center;
 }
 
 .keyboard-shortcuts p {
-  margin-top: 16px;
-  padding: 12px 16px;
-  font-size: 0.85rem;
+  margin-top: 8px;
+  padding: 8px 12px;
+  font-size: 0.8rem;
   color: var(--muted);
   background: #1a2133;
   border-radius: 8px;
