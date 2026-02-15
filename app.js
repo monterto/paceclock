@@ -40,7 +40,8 @@ const DEFAULT_STATE = {
     timerRunning: false,
     digitalTimerRunning: false,
     isFinished: false,
-    lapCount: 1
+    lapCount: 1,
+    currentLiveRow: null
   },
   
   // Interval timer state
@@ -284,16 +285,17 @@ function drawStraightHand(ctx, cx, cy, angle, length, color, width) {
 }
 
 function drawTaperedHand(ctx, cx, cy, angle, length, color, baseWidth) {
-  const tipWidth = baseWidth * 0.2;
+  const adjustedBaseWidth = baseWidth * 1.4;
+  const tipWidth = adjustedBaseWidth * 0.2;
   const perpAngle = angle + Math.PI / 2;
   
   const baseLeft = {
-    x: cx + Math.cos(perpAngle) * (baseWidth / 2),
-    y: cy + Math.sin(perpAngle) * (baseWidth / 2)
+    x: cx + Math.cos(perpAngle) * (adjustedBaseWidth / 2),
+    y: cy + Math.sin(perpAngle) * (adjustedBaseWidth / 2)
   };
   const baseRight = {
-    x: cx - Math.cos(perpAngle) * (baseWidth / 2),
-    y: cy - Math.sin(perpAngle) * (baseWidth / 2)
+    x: cx - Math.cos(perpAngle) * (adjustedBaseWidth / 2),
+    y: cy - Math.sin(perpAngle) * (adjustedBaseWidth / 2)
   };
   
   const tipX = cx + Math.cos(angle) * length;
@@ -327,12 +329,11 @@ function drawTaperedHand(ctx, cx, cy, angle, length, color, baseWidth) {
 }
 
 function drawDiamondHand(ctx, cx, cy, angle, length, color, width) {
-  const diamondSize = width * 2.8;
-  const diamondHeight = diamondSize * 1.6;
   const shaftWidth = width;
+  const diamondBaseWidth = width * 1.2;
+  const diamondLength = width * 5;
   
-  const diamondCenterY = -length + (diamondHeight / 2);
-  const diamondBottomY = -length + diamondHeight;
+  const diamondBottomY = -length + diamondLength;
   
   ctx.save();
   ctx.translate(cx, cy);
@@ -342,9 +343,9 @@ function drawDiamondHand(ctx, cx, cy, angle, length, color, width) {
   ctx.beginPath();
   ctx.moveTo(-shaftWidth / 2 - 1, 0);
   ctx.lineTo(-shaftWidth / 2 - 1, diamondBottomY);
-  ctx.lineTo(-diamondSize / 2 - 1, diamondCenterY);
+  ctx.lineTo(-diamondBaseWidth / 2 - 1, diamondBottomY);
   ctx.lineTo(0, -length - 1);
-  ctx.lineTo(diamondSize / 2 + 1, diamondCenterY);
+  ctx.lineTo(diamondBaseWidth / 2 + 1, diamondBottomY);
   ctx.lineTo(shaftWidth / 2 + 1, diamondBottomY);
   ctx.lineTo(shaftWidth / 2 + 1, 0);
   ctx.closePath();
@@ -354,9 +355,9 @@ function drawDiamondHand(ctx, cx, cy, angle, length, color, width) {
   ctx.beginPath();
   ctx.moveTo(-shaftWidth / 2, 0);
   ctx.lineTo(-shaftWidth / 2, diamondBottomY);
-  ctx.lineTo(-diamondSize / 2, diamondCenterY);
+  ctx.lineTo(-diamondBaseWidth / 2, diamondBottomY);
   ctx.lineTo(0, -length);
-  ctx.lineTo(diamondSize / 2, diamondCenterY);
+  ctx.lineTo(diamondBaseWidth / 2, diamondBottomY);
   ctx.lineTo(shaftWidth / 2, diamondBottomY);
   ctx.lineTo(shaftWidth / 2, 0);
   ctx.closePath();
@@ -442,11 +443,12 @@ function drawClock() {
       const ghostWidth = baseWidth;
       
       if (currentStyle === 'tapered') {
-        const tipWidth = ghostWidth * 0.2;
+        const adjustedGhostWidth = ghostWidth * 1.4;
+        const tipWidth = adjustedGhostWidth * 0.2;
         const perpAngle = a + Math.PI / 2;
         
-        const baseLeft = { x: cx + Math.cos(perpAngle) * ((ghostWidth + 3) / 2), y: cy + Math.sin(perpAngle) * ((ghostWidth + 3) / 2) };
-        const baseRight = { x: cx - Math.cos(perpAngle) * ((ghostWidth + 3) / 2), y: cy - Math.sin(perpAngle) * ((ghostWidth + 3) / 2) };
+        const baseLeft = { x: cx + Math.cos(perpAngle) * ((adjustedGhostWidth + 3) / 2), y: cy + Math.sin(perpAngle) * ((adjustedGhostWidth + 3) / 2) };
+        const baseRight = { x: cx - Math.cos(perpAngle) * ((adjustedGhostWidth + 3) / 2), y: cy - Math.sin(perpAngle) * ((adjustedGhostWidth + 3) / 2) };
         const tipX = cx + Math.cos(a) * length;
         const tipY = cy + Math.sin(a) * length;
         const tipLeft = { x: tipX + Math.cos(perpAngle) * ((tipWidth + 3) / 2), y: tipY + Math.sin(perpAngle) * ((tipWidth + 3) / 2) };
@@ -464,11 +466,10 @@ function drawClock() {
         drawTaperedHand(ctx, cx, cy, a, length, state.lapTimer.ghost.color, ghostWidth);
         
       } else if (currentStyle === 'diamond') {
-        const diamondSize = ghostWidth * 2.8;
-        const diamondHeight = diamondSize * 1.6;
         const shaftWidth = ghostWidth + 2;
-        const diamondCenterY = -length + (diamondHeight / 2);
-        const diamondBottomY = -length + diamondHeight;
+        const diamondBaseWidth = (ghostWidth * 1.2) + 2;
+        const diamondLength = ghostWidth * 5;
+        const diamondBottomY = -length + diamondLength;
         
         ctx.save();
         ctx.translate(cx, cy);
@@ -478,9 +479,9 @@ function drawClock() {
         ctx.beginPath();
         ctx.moveTo(-shaftWidth / 2, 0);
         ctx.lineTo(-shaftWidth / 2, diamondBottomY);
-        ctx.lineTo(-diamondSize / 2 - 1, diamondCenterY);
+        ctx.lineTo(-diamondBaseWidth / 2, diamondBottomY);
         ctx.lineTo(0, -length - 1);
-        ctx.lineTo(diamondSize / 2 + 1, diamondCenterY);
+        ctx.lineTo(diamondBaseWidth / 2, diamondBottomY);
         ctx.lineTo(shaftWidth / 2, diamondBottomY);
         ctx.lineTo(shaftWidth / 2, 0);
         ctx.closePath();
@@ -524,11 +525,12 @@ function drawClock() {
       const ghostWidth = baseWidth * 1.3;
       
       if (currentStyle === 'tapered') {
-        const tipWidth = ghostWidth * 0.2;
+        const adjustedGhostWidth = ghostWidth * 1.4;
+        const tipWidth = adjustedGhostWidth * 0.2;
         const perpAngle = a + Math.PI / 2;
         
-        const baseLeft = { x: cx + Math.cos(perpAngle) * ((ghostWidth + 3) / 2), y: cy + Math.sin(perpAngle) * ((ghostWidth + 3) / 2) };
-        const baseRight = { x: cx - Math.cos(perpAngle) * ((ghostWidth + 3) / 2), y: cy - Math.sin(perpAngle) * ((ghostWidth + 3) / 2) };
+        const baseLeft = { x: cx + Math.cos(perpAngle) * ((adjustedGhostWidth + 3) / 2), y: cy + Math.sin(perpAngle) * ((adjustedGhostWidth + 3) / 2) };
+        const baseRight = { x: cx - Math.cos(perpAngle) * ((adjustedGhostWidth + 3) / 2), y: cy - Math.sin(perpAngle) * ((adjustedGhostWidth + 3) / 2) };
         const tipX = cx + Math.cos(a) * length;
         const tipY = cy + Math.sin(a) * length;
         const tipLeft = { x: tipX + Math.cos(perpAngle) * ((tipWidth + 3) / 2), y: tipY + Math.sin(perpAngle) * ((tipWidth + 3) / 2) };
@@ -546,11 +548,10 @@ function drawClock() {
         drawTaperedHand(ctx, cx, cy, a, length, state.intervalTimer.ghostColor, ghostWidth);
         
       } else if (currentStyle === 'diamond') {
-        const diamondSize = ghostWidth * 2.8;
-        const diamondHeight = diamondSize * 1.6;
         const shaftWidth = ghostWidth + 2;
-        const diamondCenterY = -length + (diamondHeight / 2);
-        const diamondBottomY = -length + diamondHeight;
+        const diamondBaseWidth = (ghostWidth * 1.2) + 2;
+        const diamondLength = ghostWidth * 5;
+        const diamondBottomY = -length + diamondLength;
         
         ctx.save();
         ctx.translate(cx, cy);
@@ -560,9 +561,9 @@ function drawClock() {
         ctx.beginPath();
         ctx.moveTo(-shaftWidth / 2, 0);
         ctx.lineTo(-shaftWidth / 2, diamondBottomY);
-        ctx.lineTo(-diamondSize / 2 - 1, diamondCenterY);
+        ctx.lineTo(-diamondBaseWidth / 2, diamondBottomY);
         ctx.lineTo(0, -length - 1);
-        ctx.lineTo(diamondSize / 2 + 1, diamondCenterY);
+        ctx.lineTo(diamondBaseWidth / 2, diamondBottomY);
         ctx.lineTo(shaftWidth / 2, diamondBottomY);
         ctx.lineTo(shaftWidth / 2, 0);
         ctx.closePath();
@@ -680,6 +681,7 @@ function startDigitalTimer() {
         if (state.lapTimer.sessionStart) {
           totalClock.textContent = fmt(now - state.lapTimer.sessionStart);
         }
+        updateLiveEntry();
       }
     }
   }, 100);
@@ -689,6 +691,49 @@ function stopDigitalTimer() {
   if (digitalTimerInterval) {
     clearInterval(digitalTimerInterval);
     digitalTimerInterval = null;
+  }
+}
+
+// ============================================================================
+// LIVE ENTRY MANAGEMENT
+// ============================================================================
+
+function createLiveEntry() {
+  const row = document.createElement('div');
+  row.className = 'row live-entry' + (state.lapTimer.mode === 'rest' ? ' rest' : '');
+  row.id = 'liveEntry';
+  
+  const label = state.lapTimer.mode === 'lap' ? `Lap ${state.lapTimer.lapCount}` : 'Rest';
+  
+  row.innerHTML = `
+    <span>${label}</span>
+    <span class="live-time">00:00.0</span>`;
+  
+  list.prepend(row);
+  state.lapTimer.currentLiveRow = row;
+}
+
+function updateLiveEntry() {
+  if (!state.lapTimer.currentLiveRow || !state.lapTimer.lastTap) return;
+  
+  const now = Date.now();
+  const elapsed = now - state.lapTimer.lastTap;
+  
+  let deltaHTML = '';
+  if (state.lapTimer.mode === 'lap') {
+    const lapsOnly = state.lapTimer.laps.filter(x => x.type === 'lap');
+    if (lapsOnly.length > 0) {
+      const prevLapTime = lapsOnly[lapsOnly.length - 1].time;
+      const diff = elapsed - prevLapTime;
+      const delta = (diff < 0 ? '-' : '+') + fmt(Math.abs(diff));
+      const cls = diff < 0 ? 'fast' : 'slow';
+      deltaHTML = `<span class="delta ${cls}">${delta}</span>`;
+    }
+  }
+  
+  const timeContent = state.lapTimer.currentLiveRow.querySelector('.live-time');
+  if (timeContent) {
+    timeContent.innerHTML = deltaHTML + fmt(elapsed);
   }
 }
 
@@ -743,6 +788,11 @@ function handleLapTimerTap() {
     return;
   }
 
+  if (state.lapTimer.currentLiveRow) {
+    state.lapTimer.currentLiveRow.remove();
+    state.lapTimer.currentLiveRow = null;
+  }
+
   if (state.lapTimer.lastTap) {
     const duration = now - state.lapTimer.lastTap;
     const lap = { 
@@ -777,6 +827,8 @@ function handleLapTimerTap() {
   digital.classList.toggle('rest', state.lapTimer.mode === 'rest');
 
   state.lapTimer.ghost = calculateGhostHand(now);
+
+  createLiveEntry();
 
   if (!state.lapTimer.digitalTimerRunning) {
     startDigitalTimer();
@@ -1233,6 +1285,11 @@ function resetSession() {
   stopDigitalTimer();
   
   if (state.currentMode === 'lapTimer') {
+    if (state.lapTimer.currentLiveRow) {
+      state.lapTimer.currentLiveRow.remove();
+      state.lapTimer.currentLiveRow = null;
+    }
+    
     state.lapTimer.ghost = null;
     state.lapTimer.laps = [];
     state.lapTimer.lastTap = null;
@@ -1243,6 +1300,7 @@ function resetSession() {
     state.lapTimer.digitalTimerRunning = false;
     state.lapTimer.isFinished = false;
     state.lapTimer.lapCount = 1;
+    state.lapTimer.mode = state.lapTimer.trackRest ? 'rest' : 'lap';
     
     list.innerHTML = '';
     digital.textContent = '00:00.0';
@@ -1314,6 +1372,12 @@ function startSaveHold() {
     saveBtn.classList.add('save-complete');
     
     stopDigitalTimer();
+    
+    if (state.lapTimer.currentLiveRow) {
+      state.lapTimer.currentLiveRow.remove();
+      state.lapTimer.currentLiveRow = null;
+    }
+    
     state.lapTimer.isFinished = true;
     digital.textContent = 'Session Finished';
     totalClock.textContent = fmt(Date.now() - state.lapTimer.sessionStart);
