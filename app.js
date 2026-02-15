@@ -330,86 +330,35 @@ function drawTaperedHand(ctx, cx, cy, angle, length, color, baseWidth) {
 
 function drawDiamondHand(ctx, cx, cy, angle, length, color, width) {
   const shaftWidth = width;
-  const maxWidth = width * 2.2; // Widest point of the diamond shape
-  const widestPoint = -length * 0.65; // Position of widest point (65% up from center)
-  const shaftEnd = -length * 0.25; // Where shaft ends and diamond begins
+  const diamondBaseWidth = width * 1.2;
+  const diamondLength = width * 5;
+  
+  const diamondBottomY = -length + diamondLength;
   
   ctx.save();
   ctx.translate(cx, cy);
   ctx.rotate(angle + Math.PI / 2);
   
-  // Black outline (stroke effect)
   ctx.fillStyle = '#000';
   ctx.beginPath();
   ctx.moveTo(-shaftWidth / 2 - 1, 0);
-  ctx.lineTo(-shaftWidth / 2 - 1, shaftEnd);
-  
-  // Left curve from shaft to widest point (outward curve)
-  ctx.bezierCurveTo(
-    -shaftWidth / 2 - 1, shaftEnd - (widestPoint - shaftEnd) * 0.3,
-    -maxWidth / 2 - 1, widestPoint + (widestPoint - shaftEnd) * 0.2,
-    -maxWidth / 2 - 1, widestPoint
-  );
-  
-  // Left curve from widest point to tip (inward curve)
-  ctx.bezierCurveTo(
-    -maxWidth / 2 - 1, widestPoint - (-length - widestPoint) * 0.4,
-    -width * 0.3 - 1, -length + width * 1.5,
-    0, -length - 1
-  );
-  
-  // Right curve from tip to widest point (inward curve)
-  ctx.bezierCurveTo(
-    width * 0.3 + 1, -length + width * 1.5,
-    maxWidth / 2 + 1, widestPoint - (-length - widestPoint) * 0.4,
-    maxWidth / 2 + 1, widestPoint
-  );
-  
-  // Right curve from widest point to shaft (outward curve)
-  ctx.bezierCurveTo(
-    maxWidth / 2 + 1, widestPoint + (widestPoint - shaftEnd) * 0.2,
-    shaftWidth / 2 + 1, shaftEnd - (widestPoint - shaftEnd) * 0.3,
-    shaftWidth / 2 + 1, shaftEnd
-  );
-  
+  ctx.lineTo(-shaftWidth / 2 - 1, diamondBottomY);
+  ctx.lineTo(-diamondBaseWidth / 2 - 1, diamondBottomY);
+  ctx.lineTo(0, -length - 1);
+  ctx.lineTo(diamondBaseWidth / 2 + 1, diamondBottomY);
+  ctx.lineTo(shaftWidth / 2 + 1, diamondBottomY);
   ctx.lineTo(shaftWidth / 2 + 1, 0);
   ctx.closePath();
   ctx.fill();
   
-  // Colored fill
   ctx.fillStyle = color;
   ctx.beginPath();
   ctx.moveTo(-shaftWidth / 2, 0);
-  ctx.lineTo(-shaftWidth / 2, shaftEnd);
-  
-  // Left curve from shaft to widest point (outward curve)
-  ctx.bezierCurveTo(
-    -shaftWidth / 2, shaftEnd - (widestPoint - shaftEnd) * 0.3,
-    -maxWidth / 2, widestPoint + (widestPoint - shaftEnd) * 0.2,
-    -maxWidth / 2, widestPoint
-  );
-  
-  // Left curve from widest point to tip (inward curve)
-  ctx.bezierCurveTo(
-    -maxWidth / 2, widestPoint - (-length - widestPoint) * 0.4,
-    -width * 0.3, -length + width * 1.5,
-    0, -length
-  );
-  
-  // Right curve from tip to widest point (inward curve)
-  ctx.bezierCurveTo(
-    width * 0.3, -length + width * 1.5,
-    maxWidth / 2, widestPoint - (-length - widestPoint) * 0.4,
-    maxWidth / 2, widestPoint
-  );
-  
-  // Right curve from widest point to shaft (outward curve)
-  ctx.bezierCurveTo(
-    maxWidth / 2, widestPoint + (widestPoint - shaftEnd) * 0.2,
-    shaftWidth / 2, shaftEnd - (widestPoint - shaftEnd) * 0.3,
-    shaftWidth / 2, shaftEnd
-  );
-  
+  ctx.lineTo(-shaftWidth / 2, diamondBottomY);
+  ctx.lineTo(-diamondBaseWidth / 2, diamondBottomY);
+  ctx.lineTo(0, -length);
+  ctx.lineTo(diamondBaseWidth / 2, diamondBottomY);
+  ctx.lineTo(shaftWidth / 2, diamondBottomY);
   ctx.lineTo(shaftWidth / 2, 0);
   ctx.closePath();
   ctx.fill();
