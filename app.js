@@ -668,6 +668,7 @@ function calculateGhostHand(now) {
 
 const MIN_PRESS = 1000;
 const RESET_HOLD_TIME = 800;
+const FINISH_HOLD_TIME = 800;
 let digitalTimerInterval = null;
 
 function startDigitalTimer() {
@@ -1279,7 +1280,7 @@ function updateIntervalSummary() {
 let resetHoldTimer = null;
 let resetHoldStart = null;
 let saveHoldTimer = null;
-let saveHoldStart = null;
+let saveHoldStart = 0;
 
 function resetSession() {
   stopDigitalTimer();
@@ -1306,6 +1307,9 @@ function resetSession() {
     digital.textContent = '00:00.0';
     totalClock.textContent = '00:00.0';
     digital.classList.toggle('rest', state.lapTimer.mode === 'rest');
+    
+    // Reset button text to Finish state
+    document.getElementById('saveBtnText').textContent = 'Finish 🏁';
     
   } else if (state.currentMode === 'intervalTimer') {
     if (intervalTimerInterval) {
@@ -1364,40 +1368,70 @@ function cancelResetHold() {
 function startSaveHold() {
   if (state.currentMode !== 'lapTimer') return;
   
-  saveHoldStart = Date.now();
+  // STATE B: If session is already finished, save immediately (no hold required)
+  if (state.lapTimer.isFinished) {
+    saveWorkout();
+    return;
+  }
+  
+  // STATE A: Require hold to finish the workout
+  saveHoldStart = performance.now();
   saveBtn.classList.add('holding');
   
   saveHoldTimer = setTimeout(() => {
+    const holdDuration = performance.now() - saveHoldStart;
     saveBtn.classList.remove('holding');
     saveBtn.classList.add('save-complete');
     
-    stopDigitalTimer();
-    
-    if (state.lapTimer.currentLiveRow) {
-      state.lapTimer.currentLiveRow.remove();
-      state.lapTimer.currentLiveRow = null;
-    }
-    
-    state.lapTimer.isFinished = true;
-    digital.textContent = 'Session Finished';
-    totalClock.textContent = fmt(Date.now() - state.lapTimer.sessionStart);
-    
-    if (state.lapTimer.laps.length > 0) {
-      const sessionStart = new Date(state.lapTimer.sessionStart);
-      const defaultName = formatDateForFilename(sessionStart);
-      
-      const sessionName = prompt('Enter a name for this session (or leave blank for default):', defaultName);
-      
-      if (sessionName !== null) {
-        const finalName = sessionName.trim() || defaultName;
-        exportWorkout(finalName);
-      }
-    }
-    
     setTimeout(() => {
       saveBtn.classList.remove('save-complete');
-    }, 500);
-  }, RESET_HOLD_TIME);
+      finishSession(holdDuration);
+    }, 200);
+  }, FINISH_HOLD_TIME);
+}
+
+function finishSession(holdDuration) {
+  if (state.lapTimer.isFinished) return;
+  
+  stopDigitalTimer();
+  
+  if (state.lapTimer.currentLiveRow) {
+    state.lapTimer.currentLiveRow.remove();
+    state.lapTimer.currentLiveRow = null;
+  }
+  
+  // Subtract hold duration from the last lap/rest time
+  if (holdDuration > 0 && state.lapTimer.laps.length > 0) {
+    const lastLap = state.lapTimer.laps[state.lapTimer.laps.length - 1];
+    lastLap.time = Math.max(0, lastLap.time - holdDuration);
+  }
+  
+  state.lapTimer.isFinished = true;
+  digital.textContent = 'Session Finished';
+  totalClock.textContent = fmt(Date.now() - state.lapTimer.sessionStart);
+  
+  // Update button to Save state
+  document.getElementById('saveBtnText').textContent = 'Save 💾';
+  
+  releaseWakeLock();
+  renderLapList();
+}
+
+function saveWorkout() {
+  if (state.lapTimer.laps.length === 0) {
+    alert('No workout data to export');
+    return;
+  }
+  
+  const sessionStart = new Date(state.lapTimer.sessionStart);
+  const defaultName = formatDateForFilename(sessionStart);
+  
+  const sessionName = prompt('Enter a name for this session (or leave blank for default):', defaultName);
+  
+  if (sessionName !== null) {
+    const finalName = sessionName.trim() || defaultName;
+    exportWorkout(finalName);
+  }
 }
 
 function cancelSaveHold() {
@@ -1405,7 +1439,7 @@ function cancelSaveHold() {
     clearTimeout(saveHoldTimer);
     saveHoldTimer = null;
   }
-  saveHoldStart = null;
+  saveHoldStart = 0;
   saveBtn.classList.remove('holding');
 }
 
