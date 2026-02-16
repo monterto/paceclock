@@ -330,9 +330,10 @@ function drawTaperedHand(ctx, cx, cy, angle, length, color, baseWidth) {
 
 function drawDiamondHand(ctx, cx, cy, angle, length, color, width) {
   const shaftWidth = width;
-  const shaftLength = length * 0.9; // Shaft is 90% of total length
-  const tipLength = length * 0.1;   // Tip is 10% of total length
-  const tipWidth = width * 1.6;     // Diamond tip widens to 1.6x shaft width
+  const shaftLength = length * 0.9;    // Shaft is 90% of total length
+  const tipMidpoint = length * 0.95;   // Widest point of diamond (middle of tip)
+  const tipEnd = length;                // Sharp point at end
+  const maxTipWidth = width * 2.0;     // Diamond widens to 2x shaft width
   
   ctx.save();
   ctx.translate(cx, cy);
@@ -341,17 +342,17 @@ function drawDiamondHand(ctx, cx, cy, angle, length, color, width) {
   // Black outline (stroke effect)
   ctx.fillStyle = '#000';
   ctx.beginPath();
-  // Start at bottom center
+  // Start at bottom left of shaft
   ctx.moveTo(-shaftWidth / 2 - 1, 0);
   // Draw straight shaft up to where diamond starts
   ctx.lineTo(-shaftWidth / 2 - 1, -shaftLength);
-  // Diamond tip - widen out
-  ctx.lineTo(-tipWidth / 2 - 1, -shaftLength);
-  // Taper to point
-  ctx.lineTo(0, -length - 1);
-  // Back down other side
-  ctx.lineTo(tipWidth / 2 + 1, -shaftLength);
-  // Back to shaft width
+  // Widen to diamond's widest point
+  ctx.lineTo(-maxTipWidth / 2 - 1, -tipMidpoint);
+  // Taper to sharp point
+  ctx.lineTo(0, -tipEnd - 1);
+  // Back down right side - taper from point to widest
+  ctx.lineTo(maxTipWidth / 2 + 1, -tipMidpoint);
+  // Narrow back to shaft width
   ctx.lineTo(shaftWidth / 2 + 1, -shaftLength);
   // Down shaft to bottom
   ctx.lineTo(shaftWidth / 2 + 1, 0);
@@ -363,9 +364,9 @@ function drawDiamondHand(ctx, cx, cy, angle, length, color, width) {
   ctx.beginPath();
   ctx.moveTo(-shaftWidth / 2, 0);
   ctx.lineTo(-shaftWidth / 2, -shaftLength);
-  ctx.lineTo(-tipWidth / 2, -shaftLength);
-  ctx.lineTo(0, -length);
-  ctx.lineTo(tipWidth / 2, -shaftLength);
+  ctx.lineTo(-maxTipWidth / 2, -tipMidpoint);
+  ctx.lineTo(0, -tipEnd);
+  ctx.lineTo(maxTipWidth / 2, -tipMidpoint);
   ctx.lineTo(shaftWidth / 2, -shaftLength);
   ctx.lineTo(shaftWidth / 2, 0);
   ctx.closePath();
@@ -1715,4 +1716,3 @@ function setupEventListeners() {
     menuOverlay.classList.remove('visible');
   };
 }
- 
