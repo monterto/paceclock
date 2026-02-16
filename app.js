@@ -330,8 +330,8 @@ function drawTaperedHand(ctx, cx, cy, angle, length, color, baseWidth) {
 
 function drawDiamondHand(ctx, cx, cy, angle, length, color, width) {
   const shaftWidth = width;
-  const shaftLength = length * 0.9;    // Shaft is 90% of total length
-  const tipMidpoint = length * 0.95;   // Widest point of diamond (middle of tip)
+  const shaftLength = length * 0.85;   // Shaft is 85% of total length
+  const tipMidpoint = length * 0.925;  // Widest point of diamond (middle of tip)
   const tipEnd = length;                // Sharp point at end
   const maxTipWidth = width * 2.0;     // Diamond widens to 2x shaft width
   
