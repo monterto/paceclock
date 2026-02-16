@@ -330,9 +330,9 @@ function drawTaperedHand(ctx, cx, cy, angle, length, color, baseWidth) {
 
 function drawDiamondHand(ctx, cx, cy, angle, length, color, width) {
   const shaftWidth = width;
-  const tipStartY = -length * 0.9; // Tip begins at 90% of hand length
-  const tipMaxWidth = width * 1.8; // Tip widens to 1.8x shaft width
-  const tipY = -length; // Sharp point at full length
+  const shaftLength = length * 0.9; // Shaft is 90% of total length
+  const tipLength = length * 0.1;   // Tip is 10% of total length
+  const tipWidth = width * 1.6;     // Diamond tip widens to 1.6x shaft width
   
   ctx.save();
   ctx.translate(cx, cy);
@@ -341,26 +341,33 @@ function drawDiamondHand(ctx, cx, cy, angle, length, color, width) {
   // Black outline (stroke effect)
   ctx.fillStyle = '#000';
   ctx.beginPath();
-  ctx.moveTo(-shaftWidth / 2 - 1, 0); // Bottom left
-  ctx.lineTo(-shaftWidth / 2 - 1, tipStartY); // Up shaft to tip start
-  ctx.lineTo(-tipMaxWidth / 2 - 1, tipStartY); // Widen at tip base
-  ctx.lineTo(0, tipY - 1); // Taper to point
-  ctx.lineTo(tipMaxWidth / 2 + 1, tipStartY); // Back down right side
-  ctx.lineTo(shaftWidth / 2 + 1, tipStartY); // Narrow to shaft width
-  ctx.lineTo(shaftWidth / 2 + 1, 0); // Down shaft to bottom
+  // Start at bottom center
+  ctx.moveTo(-shaftWidth / 2 - 1, 0);
+  // Draw straight shaft up to where diamond starts
+  ctx.lineTo(-shaftWidth / 2 - 1, -shaftLength);
+  // Diamond tip - widen out
+  ctx.lineTo(-tipWidth / 2 - 1, -shaftLength);
+  // Taper to point
+  ctx.lineTo(0, -length - 1);
+  // Back down other side
+  ctx.lineTo(tipWidth / 2 + 1, -shaftLength);
+  // Back to shaft width
+  ctx.lineTo(shaftWidth / 2 + 1, -shaftLength);
+  // Down shaft to bottom
+  ctx.lineTo(shaftWidth / 2 + 1, 0);
   ctx.closePath();
   ctx.fill();
   
   // Colored fill
   ctx.fillStyle = color;
   ctx.beginPath();
-  ctx.moveTo(-shaftWidth / 2, 0); // Bottom left
-  ctx.lineTo(-shaftWidth / 2, tipStartY); // Up shaft to tip start
-  ctx.lineTo(-tipMaxWidth / 2, tipStartY); // Widen at tip base
-  ctx.lineTo(0, tipY); // Taper to point
-  ctx.lineTo(tipMaxWidth / 2, tipStartY); // Back down right side
-  ctx.lineTo(shaftWidth / 2, tipStartY); // Narrow to shaft width
-  ctx.lineTo(shaftWidth / 2, 0); // Down shaft to bottom
+  ctx.moveTo(-shaftWidth / 2, 0);
+  ctx.lineTo(-shaftWidth / 2, -shaftLength);
+  ctx.lineTo(-tipWidth / 2, -shaftLength);
+  ctx.lineTo(0, -length);
+  ctx.lineTo(tipWidth / 2, -shaftLength);
+  ctx.lineTo(shaftWidth / 2, -shaftLength);
+  ctx.lineTo(shaftWidth / 2, 0);
   ctx.closePath();
   ctx.fill();
   
