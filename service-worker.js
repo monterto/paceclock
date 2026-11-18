@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pace-clock-v11'; // Increment when assets change
+const CACHE_NAME = 'pace-clock-v12'; // Increment when assets change
 
 const ASSETS = [
   './',                    // Root path
@@ -20,7 +20,10 @@ self.addEventListener('install', event => {
     caches.open(CACHE_NAME)
       .then(cache => {
         console.log('[SW] Caching app shell and assets');
-        return cache.addAll(ASSETS);
+        // `cache: 'reload'` = always download fresh copies. GitHub Pages lets
+        // phones reuse files for 10 minutes, so without it a new version could
+        // be stored with the OLD files and stay stuck on them.
+        return cache.addAll(ASSETS.map(url => new Request(url, { cache: 'reload' })));
       })
       .then(() => {
         console.log('[SW] All assets cached successfully');
@@ -168,7 +171,9 @@ async function handleFetch(request) {
  */
 async function updateCacheInBackground(request) {
   try {
-    const networkResponse = await fetch(request);
+    // `no-cache` = ask GitHub for the latest copy instead of reusing the
+    // phone's 10-minute download cache, so the refresh actually refreshes.
+    const networkResponse = await fetch(request.url, { cache: 'no-cache' });
     
     if (networkResponse && networkResponse.ok) {
       const cache = await caches.open(CACHE_NAME);

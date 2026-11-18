@@ -253,11 +253,31 @@ You may not use this software for commercial purposes.
   
   <!-- Service Worker Registration -->
   <script>
+    // Getting updates onto phones: an installed app is often resumed from the
+    // background rather than reloaded, so it never noticed a new version.
+    // Check whenever the app is opened or brought back to the front, and when
+    // a new version takes over, reload once — but NEVER during a workout:
+    // if a lap or interval session is running, the update simply applies the
+    // next time the app is opened.
     if ('serviceWorker' in navigator) {
+      const hadController = !!navigator.serviceWorker.controller;
+      let reloading = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!hadController || reloading) return;
+        const sessionRunning = typeof state !== 'undefined' &&
+          (state.lapTimer.sessionStart || state.intervalTimer.sessionStart);
+        if (sessionRunning) return;
+        reloading = true;
+        window.location.reload();
+      });
+
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('service-worker.js')
           .then(registration => {
-            console.log('Service Worker registered:', registration.scope);
+            registration.update();
+            document.addEventListener('visibilitychange', () => {
+              if (document.visibilityState === 'visible') registration.update();
+            });
           })
           .catch(error => {
             console.error('Service Worker registration failed:', error);
