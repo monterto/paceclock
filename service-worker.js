@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pace-clock-v6'; // Increment when assets change
+const CACHE_NAME = 'pace-clock-v11'; // Increment when assets change
 
 const ASSETS = [
   './',                    // Root path

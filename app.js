@@ -385,6 +385,73 @@ function drawHand(ctx, cx, cy, angle, length, color, width, style) {
   }
 }
 
+// Semi-transparent hand with a halo, in whichever hand style is selected.
+// Shared by lap and interval modes (previously two copy-pasted blocks).
+function drawGhostHand(ctx, cx, cy, seconds, color, length, ghostWidth, style) {
+  const a = seconds * Math.PI / 30 - Math.PI / 2;
+  const haloColor = state.display.dark ? '#888' : '#000';
+  ctx.save();
+  ctx.globalAlpha = 0.5;
+
+  if (style === 'tapered') {
+    const adjustedGhostWidth = ghostWidth * 1.4;
+    const tipWidth = adjustedGhostWidth * 0.2;
+    const perpAngle = a + Math.PI / 2;
+    const px = Math.cos(perpAngle), py = Math.sin(perpAngle);
+    const baseHalf = (adjustedGhostWidth + 3) / 2;
+    const tipHalf = (tipWidth + 3) / 2;
+    const tipX = cx + Math.cos(a) * length;
+    const tipY = cy + Math.sin(a) * length;
+
+    ctx.fillStyle = haloColor;
+    ctx.beginPath();
+    ctx.moveTo(cx + px * baseHalf, cy + py * baseHalf);
+    ctx.lineTo(tipX + px * tipHalf, tipY + py * tipHalf);
+    ctx.lineTo(tipX - px * tipHalf, tipY - py * tipHalf);
+    ctx.lineTo(cx - px * baseHalf, cy - py * baseHalf);
+    ctx.closePath();
+    ctx.fill();
+
+    drawTaperedHand(ctx, cx, cy, a, length, color, ghostWidth);
+
+  } else if (style === 'diamond') {
+    const shaftWidth = ghostWidth + 2;
+    const diamondBaseWidth = (ghostWidth * 1.2) + 2;
+    const diamondBottomY = -length + ghostWidth * 5;
+
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(a + Math.PI / 2);
+    ctx.fillStyle = haloColor;
+    ctx.beginPath();
+    ctx.moveTo(-shaftWidth / 2, 0);
+    ctx.lineTo(-shaftWidth / 2, diamondBottomY);
+    ctx.lineTo(-diamondBaseWidth / 2, diamondBottomY);
+    ctx.lineTo(0, -length - 1);
+    ctx.lineTo(diamondBaseWidth / 2, diamondBottomY);
+    ctx.lineTo(shaftWidth / 2, diamondBottomY);
+    ctx.lineTo(shaftWidth / 2, 0);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+
+    drawDiamondHand(ctx, cx, cy, a, length, color, ghostWidth);
+
+  } else {
+    ctx.strokeStyle = haloColor;
+    ctx.lineWidth = ghostWidth + 3;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx + Math.cos(a) * length, cy + Math.sin(a) * length);
+    ctx.stroke();
+
+    drawStraightHand(ctx, cx, cy, a, length, color, ghostWidth);
+  }
+
+  ctx.restore(); // also restores globalAlpha
+}
+
 // ============================================================================
 // CLOCK RENDERING
 // ============================================================================
@@ -444,170 +511,25 @@ function drawClock() {
   const currentStyle = state.display.handStyle;
   const isSingleMode = state.display.singleHand;
 
-  if (state.currentMode === 'lapTimer') {
-    if (state.lapTimer.ghost && state.display.ghostHand) {
-      const a = state.lapTimer.ghost.seconds * Math.PI / 30 - Math.PI / 2;
-      ctx.globalAlpha = 0.5;
-      
-      const ghostWidth = baseWidth;
-      
-      if (currentStyle === 'tapered') {
-        const adjustedGhostWidth = ghostWidth * 1.4;
-        const tipWidth = adjustedGhostWidth * 0.2;
-        const perpAngle = a + Math.PI / 2;
-        
-        const baseLeft = { x: cx + Math.cos(perpAngle) * ((adjustedGhostWidth + 3) / 2), y: cy + Math.sin(perpAngle) * ((adjustedGhostWidth + 3) / 2) };
-        const baseRight = { x: cx - Math.cos(perpAngle) * ((adjustedGhostWidth + 3) / 2), y: cy - Math.sin(perpAngle) * ((adjustedGhostWidth + 3) / 2) };
-        const tipX = cx + Math.cos(a) * length;
-        const tipY = cy + Math.sin(a) * length;
-        const tipLeft = { x: tipX + Math.cos(perpAngle) * ((tipWidth + 3) / 2), y: tipY + Math.sin(perpAngle) * ((tipWidth + 3) / 2) };
-        const tipRight = { x: tipX - Math.cos(perpAngle) * ((tipWidth + 3) / 2), y: tipY - Math.sin(perpAngle) * ((tipWidth + 3) / 2) };
-        
-        ctx.fillStyle = state.display.dark ? '#888' : '#000';
-        ctx.beginPath();
-        ctx.moveTo(baseLeft.x, baseLeft.y);
-        ctx.lineTo(tipLeft.x, tipLeft.y);
-        ctx.lineTo(tipRight.x, tipRight.y);
-        ctx.lineTo(baseRight.x, baseRight.y);
-        ctx.closePath();
-        ctx.fill();
-        
-        drawTaperedHand(ctx, cx, cy, a, length, state.lapTimer.ghost.color, ghostWidth);
-        
-      } else if (currentStyle === 'diamond') {
-        const shaftWidth = ghostWidth + 2;
-        const diamondBaseWidth = (ghostWidth * 1.2) + 2;
-        const diamondLength = ghostWidth * 5;
-        const diamondBottomY = -length + diamondLength;
-        
-        ctx.save();
-        ctx.translate(cx, cy);
-        ctx.rotate(a + Math.PI / 2);
-        
-        ctx.fillStyle = state.display.dark ? '#888' : '#000';
-        ctx.beginPath();
-        ctx.moveTo(-shaftWidth / 2, 0);
-        ctx.lineTo(-shaftWidth / 2, diamondBottomY);
-        ctx.lineTo(-diamondBaseWidth / 2, diamondBottomY);
-        ctx.lineTo(0, -length - 1);
-        ctx.lineTo(diamondBaseWidth / 2, diamondBottomY);
-        ctx.lineTo(shaftWidth / 2, diamondBottomY);
-        ctx.lineTo(shaftWidth / 2, 0);
-        ctx.closePath();
-        ctx.fill();
-        
-        ctx.restore();
-        
-        drawDiamondHand(ctx, cx, cy, a, length, state.lapTimer.ghost.color, ghostWidth);
-        
-      } else {
-        ctx.strokeStyle = state.display.dark ? '#888' : '#000';
-        ctx.lineWidth = ghostWidth + 3;
-        ctx.lineCap = 'round';
-        ctx.beginPath();
-        ctx.moveTo(cx, cy);
-        ctx.lineTo(cx + Math.cos(a) * length, cy + Math.sin(a) * length);
-        ctx.stroke();
-        
-        drawStraightHand(ctx, cx, cy, a, length, state.lapTimer.ghost.color, ghostWidth);
-      }
-      
-      ctx.globalAlpha = 1;
+  // Ghost hand: lap timer marks where the last tap landed; interval timer
+  // marks where the current phase started (drawn slightly wider there).
+  if (state.display.ghostHand) {
+    if (state.currentMode === 'lapTimer' && state.lapTimer.ghost) {
+      drawGhostHand(ctx, cx, cy, state.lapTimer.ghost.seconds, state.lapTimer.ghost.color, length, baseWidth, currentStyle);
+    } else if (state.currentMode === 'intervalTimer' && state.intervalTimer.ghostSeconds !== null && state.intervalTimer.ghostColor) {
+      drawGhostHand(ctx, cx, cy, state.intervalTimer.ghostSeconds, state.intervalTimer.ghostColor, length, baseWidth * 1.3, currentStyle);
     }
-    
-    const handsToShow = isSingleMode 
-      ? state.lapTimer.hands.filter(h => h.offset === 0)
-      : state.lapTimer.hands;
-    
-    handsToShow.forEach(h => {
-      const s = (base + h.offset) % 60;
-      const a = s * Math.PI / 30 - Math.PI / 2;
-      
-      drawHand(ctx, cx, cy, a, length, h.color, baseWidth, currentStyle);
-    });
-
-  } else if (state.currentMode === 'intervalTimer') {
-    if (state.display.ghostHand && state.intervalTimer.ghostSeconds !== null && state.intervalTimer.ghostColor) {
-      const a = state.intervalTimer.ghostSeconds * Math.PI / 30 - Math.PI / 2;
-      ctx.globalAlpha = 0.5;
-      
-      const ghostWidth = baseWidth * 1.3;
-      
-      if (currentStyle === 'tapered') {
-        const adjustedGhostWidth = ghostWidth * 1.4;
-        const tipWidth = adjustedGhostWidth * 0.2;
-        const perpAngle = a + Math.PI / 2;
-        
-        const baseLeft = { x: cx + Math.cos(perpAngle) * ((adjustedGhostWidth + 3) / 2), y: cy + Math.sin(perpAngle) * ((adjustedGhostWidth + 3) / 2) };
-        const baseRight = { x: cx - Math.cos(perpAngle) * ((adjustedGhostWidth + 3) / 2), y: cy - Math.sin(perpAngle) * ((adjustedGhostWidth + 3) / 2) };
-        const tipX = cx + Math.cos(a) * length;
-        const tipY = cy + Math.sin(a) * length;
-        const tipLeft = { x: tipX + Math.cos(perpAngle) * ((tipWidth + 3) / 2), y: tipY + Math.sin(perpAngle) * ((tipWidth + 3) / 2) };
-        const tipRight = { x: tipX - Math.cos(perpAngle) * ((tipWidth + 3) / 2), y: tipY - Math.sin(perpAngle) * ((tipWidth + 3) / 2) };
-        
-        ctx.fillStyle = state.display.dark ? '#888' : '#000';
-        ctx.beginPath();
-        ctx.moveTo(baseLeft.x, baseLeft.y);
-        ctx.lineTo(tipLeft.x, tipLeft.y);
-        ctx.lineTo(tipRight.x, tipRight.y);
-        ctx.lineTo(baseRight.x, baseRight.y);
-        ctx.closePath();
-        ctx.fill();
-        
-        drawTaperedHand(ctx, cx, cy, a, length, state.intervalTimer.ghostColor, ghostWidth);
-        
-      } else if (currentStyle === 'diamond') {
-        const shaftWidth = ghostWidth + 2;
-        const diamondBaseWidth = (ghostWidth * 1.2) + 2;
-        const diamondLength = ghostWidth * 5;
-        const diamondBottomY = -length + diamondLength;
-        
-        ctx.save();
-        ctx.translate(cx, cy);
-        ctx.rotate(a + Math.PI / 2);
-        
-        ctx.fillStyle = state.display.dark ? '#888' : '#000';
-        ctx.beginPath();
-        ctx.moveTo(-shaftWidth / 2, 0);
-        ctx.lineTo(-shaftWidth / 2, diamondBottomY);
-        ctx.lineTo(-diamondBaseWidth / 2, diamondBottomY);
-        ctx.lineTo(0, -length - 1);
-        ctx.lineTo(diamondBaseWidth / 2, diamondBottomY);
-        ctx.lineTo(shaftWidth / 2, diamondBottomY);
-        ctx.lineTo(shaftWidth / 2, 0);
-        ctx.closePath();
-        ctx.fill();
-        
-        ctx.restore();
-        
-        drawDiamondHand(ctx, cx, cy, a, length, state.intervalTimer.ghostColor, ghostWidth);
-        
-      } else {
-        ctx.strokeStyle = state.display.dark ? '#888' : '#000';
-        ctx.lineWidth = ghostWidth + 3;
-        ctx.lineCap = 'round';
-        ctx.beginPath();
-        ctx.moveTo(cx, cy);
-        ctx.lineTo(cx + Math.cos(a) * length, cy + Math.sin(a) * length);
-        ctx.stroke();
-        
-        drawStraightHand(ctx, cx, cy, a, length, state.intervalTimer.ghostColor, ghostWidth);
-      }
-      
-      ctx.globalAlpha = 1;
-    }
-    
-    const handsToShow = isSingleMode
-      ? state.lapTimer.hands.filter(h => h.offset === 0)
-      : state.lapTimer.hands;
-    
-    handsToShow.forEach(h => {
-      const s = (base + h.offset) % 60;
-      const a = s * Math.PI / 30 - Math.PI / 2;
-      
-      drawHand(ctx, cx, cy, a, length, h.color, baseWidth, currentStyle);
-    });
   }
+
+  const handsToShow = isSingleMode
+    ? state.lapTimer.hands.filter(h => h.offset === 0)
+    : state.lapTimer.hands;
+
+  handsToShow.forEach(h => {
+    const s = (base + h.offset) % 60;
+    const a = s * Math.PI / 30 - Math.PI / 2;
+    drawHand(ctx, cx, cy, a, length, h.color, baseWidth, currentStyle);
+  });
 
   ctx.fillStyle = state.display.dark ? '#777' : '#000';
   ctx.beginPath();
@@ -848,7 +770,8 @@ function handleLapTimerTap() {
 
 function handleIntervalTimerTap() {
   const phase = state.intervalTimer.phase;
-  
+  unlockAudio(); // runs inside the tap gesture, so beeps are allowed later
+
   if (phase === 'waiting') {
     startIntervalTimer();
   } else if (phase === 'countdown' || phase === 'work' || phase === 'rest') {
@@ -1072,14 +995,35 @@ function updateHandWidthVisibility() {
 let intervalTimerInterval = null;
 let audioContext = null;
 
-function beep(frequency = 800, duration = 150) {
+// Browsers (iOS Safari and Chrome especially) only let audio start from a
+// user gesture. The first beep used to come from a setInterval tick, so the
+// AudioContext was created "suspended" and the timer stayed silent. Call
+// this from the tap that starts or resumes the timer to unlock audio.
+function unlockAudio() {
   if (!state.intervalTimer.beepEnabled) return;
-  
   try {
     if (!audioContext) {
       audioContext = new (window.AudioContext || window.webkitAudioContext)();
     }
-    
+    if (audioContext.state === 'suspended') {
+      audioContext.resume();
+    }
+  } catch (err) {
+    console.error('Audio unlock error:', err);
+  }
+}
+
+function beep(frequency = 800, duration = 150) {
+  if (!state.intervalTimer.beepEnabled) return;
+
+  try {
+    if (!audioContext) {
+      audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (audioContext.state === 'suspended') {
+      audioContext.resume();
+    }
+
     const oscillator = audioContext.createOscillator();
     const gainNode = audioContext.createGain();
     
@@ -1164,7 +1108,11 @@ function updateIntervalTimer() {
 }
 
 function transitionIntervalPhase() {
-  const now = Date.now();
+  // The moment this phase was SCHEDULED to end, not the moment the 50ms tick
+  // happened to notice. Timing the next phase from "now" made every phase
+  // run long by up to one tick (up to ~1s when the browser throttles
+  // timers), and the error accumulated round after round.
+  const now = state.intervalTimer.intervalStart + state.intervalTimer.timeRemaining;
   
   beep(1000, 500);
   
@@ -1319,6 +1267,9 @@ function resetSession() {
     
     // Reset button text to Finish state
     document.getElementById('saveBtnText').textContent = 'Finish 🏁';
+
+    // Finishing released the screen wake lock; take it back for the next set.
+    requestWakeLock();
     
   } else if (state.currentMode === 'intervalTimer') {
     if (intervalTimerInterval) {
@@ -1383,47 +1334,54 @@ function startSaveHold() {
     return;
   }
   
-  // STATE A: Require hold to finish the workout
-  saveHoldStart = performance.now();
+  // Nothing to finish before the first tap.
+  if (!state.lapTimer.sessionStart) return;
+
+  // STATE A: Require hold to finish the workout. Remember the wall-clock
+  // moment the button went DOWN — that's when the swimmer actually stopped,
+  // not 0.8s+ later when the hold completes.
+  saveHoldStart = Date.now();
   saveBtn.classList.add('holding');
-  
+
   saveHoldTimer = setTimeout(() => {
-    const holdDuration = performance.now() - saveHoldStart;
+    const pressedAt = saveHoldStart;
     saveBtn.classList.remove('holding');
     saveBtn.classList.add('save-complete');
-    
+
     setTimeout(() => {
       saveBtn.classList.remove('save-complete');
-      finishSession(holdDuration);
+      finishSession(pressedAt);
     }, 200);
   }, FINISH_HOLD_TIME);
 }
 
-function finishSession(holdDuration) {
-  if (state.lapTimer.isFinished) return;
-  
+// Finish keeps the laps you tapped exactly as recorded and drops whatever
+// segment was still in progress (the time since your last tap) — same as
+// the original behavior, since the expected flow is: tap the clock at the
+// wall to end your final lap, then press Finish.
+// Two original bugs are removed: it subtracted the ~0.8s hold time from the
+// last COMPLETED lap (already exact from its tap), then called
+// renderLapList(), which didn't exist.
+function finishSession(pressedAt) {
+  if (state.lapTimer.isFinished || !state.lapTimer.sessionStart) return;
+  const endAt = pressedAt || Date.now();
+
   stopDigitalTimer();
-  
+
   if (state.lapTimer.currentLiveRow) {
     state.lapTimer.currentLiveRow.remove();
     state.lapTimer.currentLiveRow = null;
   }
-  
-  // Subtract hold duration from the last lap/rest time
-  if (holdDuration > 0 && state.lapTimer.laps.length > 0) {
-    const lastLap = state.lapTimer.laps[state.lapTimer.laps.length - 1];
-    lastLap.time = Math.max(0, lastLap.time - holdDuration);
-  }
-  
+
+
   state.lapTimer.isFinished = true;
   digital.textContent = 'Session Finished';
-  totalClock.textContent = fmt(Date.now() - state.lapTimer.sessionStart);
-  
+  totalClock.textContent = fmt(endAt - state.lapTimer.sessionStart);
+
   // Update button to Save state
   document.getElementById('saveBtnText').textContent = 'Save 💾';
-  
+
   releaseWakeLock();
-  renderLapList();
 }
 
 function saveWorkout() {
@@ -1551,13 +1509,20 @@ function setupEventListeners() {
     saveSettings();
   };
 
+  // Rest toggle: lap-swimming (every tap = new lap) vs gym-style (work / rest
+  // alternating). `mode` is the type of the segment running RIGHT NOW, so
+  // mid-session the toggle must leave it alone and only affect what the
+  // next tap starts — handleLapTimerTap() already reads trackRest when it
+  // decides the next segment. Previously the toggle overwrote `mode`, which
+  // relabelled the set in progress (a lap became a rest or vice versa),
+  // depending on which kind of segment happened to be running.
   toggleRestBtn.addEventListener('click', () => {
     state.lapTimer.trackRest = !state.lapTimer.trackRest;
 
-    if (!state.lapTimer.trackRest) {
-      state.lapTimer.mode = 'lap';
-    } else if (state.lapTimer.mode === 'lap') {
-      state.lapTimer.mode = 'rest';
+    // Before the first tap (or after Finish) nothing is in progress: just set
+    // the starting point so the first tap always begins a lap.
+    if (!state.lapTimer.lastTap || state.lapTimer.isFinished) {
+      state.lapTimer.mode = state.lapTimer.trackRest ? 'rest' : 'lap';
     }
 
     toggleRestBtn.textContent = state.lapTimer.trackRest ? 'Rest ☑' : 'Rest ☐';
@@ -1688,10 +1653,21 @@ function setupEventListeners() {
   };
 
   saveIntervalConfig.onclick = () => {
-    state.intervalTimer.countdown = parseInt(countdownInput.value) || 5;
-    state.intervalTimer.workTime = parseInt(workInput.value) || 60;
-    state.intervalTimer.restTime = parseInt(restInput.value) || 60;
-    state.intervalTimer.totalRounds = infiniteRounds.checked ? null : (parseInt(roundsInput.value) || null);
+    // Clamp to each input's own min/max. `parseInt(x) || 5` turned a valid
+    // 0-second countdown into 5, and negative values were accepted, which
+    // made phases flip every tick.
+    const readInt = (input, fallback) => {
+      const n = parseInt(input.value, 10);
+      if (!Number.isFinite(n)) return fallback;
+      return Math.min(Number(input.max), Math.max(Number(input.min), n));
+    };
+    state.intervalTimer.countdown = readInt(countdownInput, 5);
+    state.intervalTimer.workTime = readInt(workInput, 60);
+    state.intervalTimer.restTime = readInt(restInput, 60);
+    state.intervalTimer.totalRounds = infiniteRounds.checked ? null : readInt(roundsInput, null);
+    countdownInput.value = state.intervalTimer.countdown;
+    workInput.value = state.intervalTimer.workTime;
+    restInput.value = state.intervalTimer.restTime;
     state.intervalTimer.beepEnabled = beepEnabled.checked;
     state.intervalTimer.volume = parseInt(volumeSlider.value);
     
